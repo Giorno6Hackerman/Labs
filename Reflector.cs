@@ -10,7 +10,7 @@ namespace CRUD
         private Assembly lib;
         private string libPath = "D:/prog/4 sem/OOTPISP/Labs/StoneLibrary/bin/Debug/StoneLibrary.dll";
         private Type[] classes;
-        private List<object> objectsList;
+        public List<object> objectsList;
 
         public void LoadClasses(ComboBox box)
         {
