@@ -47,7 +47,7 @@ namespace CRUD
 
         private void MainWindow_Closed(object sender, System.EventArgs e)
         {
-            objectsList.Clear();
+            reflector.ClearObjectsList();
         }
 
         /*
@@ -70,15 +70,15 @@ namespace CRUD
             EditObjectButton.IsEnabled = false;
             DeleteObjectButton.IsEnabled = false;
             string selectedClass = "StoneOcean." + (string)ClassesComboBox.SelectedItem;
-            Type currentClass = lib.GetType(selectedClass);
+            Type currentClass = reflector.GetTypeByName(selectedClass);
             DrawAllProperties(currentClass, PropertiesListBox);
             PropertiesListBox.Visibility = Visibility.Visible;
         }
 
-        private void DrawAllProperties(Type currentClass, ListBox propertiesListBox)
+
+        private void DrawAllFields(Type currentClass, ListBox propertiesListBox)
         {
             FieldInfo[] fields = currentClass.GetFields();
-            PropertyInfo[] properties = currentClass.GetProperties();
             foreach (FieldInfo field in fields)
             {
                 StackPanel fieldStackPanel = new StackPanel();
@@ -100,6 +100,12 @@ namespace CRUD
                 }
                 propertiesListBox.Items.Add(fieldStackPanel);
             }
+        }
+
+
+        private void DrawAllProperties(Type currentClass, ListBox propertiesListBox)
+        {
+            PropertyInfo[] properties = currentClass.GetProperties();
             foreach (PropertyInfo property in properties)
             {
                 StackPanel propertyStackPanel = new StackPanel();
@@ -141,6 +147,7 @@ namespace CRUD
             }
             return fieldName;
         }
+
 
         private object CreateTextBoxForProperties(MemberInfo member)
         {
@@ -197,23 +204,8 @@ namespace CRUD
             }
 
             classList.Items.Add(classType.Name);
-            foreach (Type child in classes)
-            {
-                Type childType = child;
-                while (childType != typeof(Object))
-                {
-                    if ((childType.BaseType == classType) && (!classList.Items.Contains(childType.Name)))
-                    {
-                        classList.Items.Add(child.Name);
-                        break;
-                    }
-                    else
-                    {
-                        childType = childType.BaseType;
-                    }
-                }
 
-            }
+            reflector.AddChildrenClasses(classList, classType);
 
             classList.SelectionChanged += SubClassComboBox_SelectionChanged;
             return classList;
