@@ -235,6 +235,7 @@ namespace CRUD
             {
                 subList = new ListBox();
             }
+
             ComboBox current = (ComboBox)sender;
             subList = new ListBox();
             subList.Name = current.Name.Substring(0, current.Name.IndexOf("ComboBox")) + "SubClassListBox";
@@ -246,7 +247,7 @@ namespace CRUD
             }
 
             string selectedClass = "StoneOcean." + (string)current.SelectedItem;
-            Type currentClass = lib.GetType(selectedClass);
+            Type currentClass = reflector.GetTypeByName(selectedClass);
             DrawAllProperties(currentClass, subList);
             
         }
@@ -297,7 +298,7 @@ namespace CRUD
                     {
                         ListBox listBox = currentPanel.Children[currentPanel.Children.Count - 1] as ListBox;
                         ComboBox objClassBox = currentPanel.Children[1] as ComboBox;
-                        Type objectClass = lib.GetType("StoneOcean." + (string)objClassBox.SelectedItem);
+                        Type objectClass = reflector.GetTypeByName("StoneOcean." + (string)objClassBox.SelectedItem);
                         argument = CreateSubObject(objectClass, listBox);
                         name = objClassBox.Name.Substring(0, objClassBox.Name.IndexOf("SubClassComboBox"));
                     }
@@ -318,6 +319,7 @@ namespace CRUD
                         }
                     }
 
+                    /*
                     MemberInfo[] members = currentClass.GetMember(name);
                     MemberInfo currentMember = members[0];
                     foreach (MemberInfo member in members)
@@ -327,10 +329,13 @@ namespace CRUD
                             currentMember = member;
                         }
                     }
+                    */
 
-                    Type propertyType;
+                    MemberInfo currentMember = reflector.GetCurrentMember(currentClass, name);
+
                     if (currentMember.MemberType == MemberTypes.Property)
                     {
+                        /*
                         PropertyInfo currentProperty = currentMember as PropertyInfo;
                         propertyType = currentProperty.PropertyType;
                         if (BasicTypes.Contains(propertyType))
@@ -341,12 +346,14 @@ namespace CRUD
                         {
                             argument = EnumTypeConvertion(argument, propertyType);
                         }
-
+                        */
+                        PropertyInfo currentProperty = reflector.ConvertArgumentAsProperty(currentMember, argument);
                         currentProperty.SetValue(currentObject, argument);
                         
                     }
                     else
                     {
+                        /*
                         FieldInfo currentField = currentMember as FieldInfo;
                         propertyType = currentField.FieldType;
                         if (BasicTypes.Contains(propertyType) || propertyType.IsEnum)
@@ -357,7 +364,8 @@ namespace CRUD
                         {
                             argument = EnumTypeConvertion(argument, propertyType);
                         }
-
+                        */
+                        FieldInfo currentField = reflector.ConvertArgumentAsField(currentMember, argument);
                         
                         currentField.SetValue(currentObject, argument);
                         
@@ -376,60 +384,10 @@ namespace CRUD
         }
 
 
-        List<Type> BasicTypes = new List<Type>
-        {
-            typeof(Boolean),
-            typeof(Char),
-            typeof(Byte),
-            typeof(SByte),
-            typeof(UInt16),
-            typeof(UInt32),
-            typeof(UInt64),
-            typeof(Int16),
-            typeof(Int32),
-            typeof(Int64),
-            typeof(Decimal),
-            typeof(Double),
-            typeof(Single)
-        };
 
-        private object BasicTypeConvertion(object from, Type basicType) 
-        {
-            switch (basicType.Name)
-            {
-                case "Boolean":
-                    return Boolean.Parse(from.ToString());
-                case "Byte":
-                case "SByte":
-                    return Byte.Parse(from.ToString());
-                case "Char":
-                    return Char.Parse(from.ToString());
-                case "Int16":
-                case "UInt16":
-                    return Int16.Parse(from.ToString());
-                case "Int32":
-                case "UInt32":
-                    return Int32.Parse(from.ToString());
-                case "Double":
-                    return Double.Parse(from.ToString());
-                case "Single":
-                    return Single.Parse(from.ToString());
-                case "Decimal":
-                    return Decimal.Parse(from.ToString());
-                default:
-                    return Int64.Parse(from.ToString());
-            }
-        }
+        
 
-        private object EnumTypeConvertion(object from, Type basicType)
-        {
-            foreach (string t in basicType.GetEnumNames())
-            {
-                if (from.ToString() == t)
-                    return Enum.Parse(basicType, t);
-            }
-            return basicType.GetEnumNames()[0];
-        }
+
 
         // изменение атрибутов выбранного в ObjectsListBox объекта
         private void EditObjectButton_Click(object sender, RoutedEventArgs e)
