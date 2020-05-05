@@ -135,7 +135,7 @@ namespace CRUD
         }
 
 
-        public PropertyInfo ConvertArgumentAsProperty(MemberInfo member, object argument)
+        public PropertyInfo ConvertArgumentAsProperty(MemberInfo member, ref object argument)
         {
             PropertyInfo currentProperty = member as PropertyInfo;
             Type type = currentProperty.PropertyType;
@@ -151,11 +151,11 @@ namespace CRUD
         }
 
 
-        public FieldInfo ConvertArgumentAsField(MemberInfo member, object argument)
+        public FieldInfo ConvertArgumentAsField(MemberInfo member,ref object argument)
         {
             FieldInfo currentField = member as FieldInfo;
             Type type = currentField.FieldType;
-            if (BasicTypes.Contains(type) || type.IsEnum)
+            if (BasicTypes.Contains(type)/* || type.IsEnum*/)
             {
                 argument = BasicTypeConvertion(argument, type);
             }

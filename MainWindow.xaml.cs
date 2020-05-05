@@ -50,6 +50,7 @@ namespace CRUD
             string selectedClass = "StoneOcean." + (string)ClassesComboBox.SelectedItem;
             Type currentClass = reflector.GetTypeByName(selectedClass);
             DrawAllProperties(currentClass, PropertiesListBox);
+            DrawAllFields(currentClass, PropertiesListBox);
             PropertiesListBox.Visibility = Visibility.Visible;
         }
 
@@ -225,7 +226,9 @@ namespace CRUD
             string selectedClass = "StoneOcean." + (string)current.SelectedItem;
             Type currentClass = reflector.GetTypeByName(selectedClass);
             DrawAllProperties(currentClass, subList);
-            
+            DrawAllFields(currentClass, subList);
+
+
         }
 
 
@@ -299,12 +302,12 @@ namespace CRUD
 
                     if (currentMember.MemberType == MemberTypes.Property)
                     {
-                        PropertyInfo currentProperty = reflector.ConvertArgumentAsProperty(currentMember, argument);
+                        PropertyInfo currentProperty = reflector.ConvertArgumentAsProperty(currentMember, ref argument);
                         currentProperty.SetValue(currentObject, argument);                        
                     }
                     else
                     {
-                        FieldInfo currentField = reflector.ConvertArgumentAsField(currentMember, argument);
+                        FieldInfo currentField = reflector.ConvertArgumentAsField(currentMember,ref argument);
                         currentField.SetValue(currentObject, argument);
                     }
                 }
@@ -387,13 +390,14 @@ namespace CRUD
                 }
 
                 DrawAllProperties(currentClass, PropertiesListBox);
-                FillAllProperties(currentClass, currentObject, PropertiesListBox);
+                DrawAllFields(currentClass, PropertiesListBox);
+                FillAllProperties(currentClass, currentObject, ref PropertiesListBox);
             }
             if(ObjectsListBox.Items.Count == 1)
                 (e.Source as ListBoxItem).IsSelected = false;
         }
 
-        private void FillAllProperties(Type currentClass, object currentObject, ListBox propertiesList)
+        private void FillAllProperties(Type currentClass, object currentObject, ref ListBox propertiesList)
         {
             try
             {
@@ -405,11 +409,11 @@ namespace CRUD
                     StackPanel currentPanel = propertiesList.Items[index] as StackPanel;
                     if (currentPanel.Name.Contains("PropertyStackPanel"))
                     {
-                        FillProperty(currentPanel, currentClass, currentObject);                        
+                        FillProperty(ref currentPanel, currentClass, currentObject);                        
                     }
                     else
                     {
-                        FillField(currentPanel, currentClass, currentObject);
+                        FillField(ref currentPanel, currentClass, currentObject);
                     }
                 }
             }
@@ -428,11 +432,11 @@ namespace CRUD
             Type className = property.GetValue(obj).GetType();
             classBox.SelectedIndex = classBox.Items.IndexOf(className.Name);
             DrawAllProperties(className, listBox);
-            FillAllProperties(className, property.GetValue(obj), listBox);
+            FillAllProperties(className, property.GetValue(obj), ref listBox);
         }
 
 
-        private void FillEnumProperty(ComboBox enumBox, PropertyInfo property, object obj)
+        private void FillEnumProperty(ref ComboBox enumBox, PropertyInfo property, object obj)
         {
             string value = property.GetValue(obj).ToString();
             foreach (object item in enumBox.Items)
@@ -443,7 +447,7 @@ namespace CRUD
         }
 
 
-        private void FillProperty(StackPanel panel, Type type, object obj)
+        private void FillProperty(ref StackPanel panel, Type type, object obj)
         {
             PropertyInfo[] properties = type.GetProperties();
             string propertyName = panel.Name.Substring(0, panel.Name.IndexOf("PropertyStackPanel"));
@@ -461,7 +465,7 @@ namespace CRUD
             else if (currentProperty.PropertyType.IsEnum)
             {
                 ComboBox currentEnumBox = panel.Children[1] as ComboBox;
-                FillEnumProperty(currentEnumBox, currentProperty, obj);
+                FillEnumProperty(ref currentEnumBox, currentProperty, obj);
             }
             else
             {
@@ -471,7 +475,7 @@ namespace CRUD
         }
 
 
-        private void FillField(StackPanel panel, Type type, object obj)
+        private void FillField(ref StackPanel panel, Type type, object obj)
         {
             FieldInfo[] fields = type.GetFields();
             string fieldName = panel.Name.Substring(0, panel.Name.IndexOf("FieldStackPanel"));
@@ -487,7 +491,7 @@ namespace CRUD
                 ComboBox currentClassBox = panel.Children[1] as ComboBox;
                 ListBox currentListBox = panel.Children[panel.Children.Count - 1] as ListBox;
                 currentClassBox.SelectedItem = currentClassBox.FindName(currentField.GetValue(obj).ToString());
-                FillAllProperties(currentField.FieldType, currentField, currentListBox);
+                FillAllProperties(currentField.FieldType, currentField, ref currentListBox);
             }
             else if (currentField.FieldType.IsEnum)
             {
