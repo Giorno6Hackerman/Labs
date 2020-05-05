@@ -12,6 +12,8 @@ namespace CRUD
         private Type[] classes;
         public List<object> objectsList;
 
+
+        // загрузка всех классов из библиотеки
         public void LoadClasses(ComboBox box)
         {
             lib = Assembly.LoadFrom(libPath);
@@ -26,18 +28,21 @@ namespace CRUD
         }
 
 
+        // очистка списка созданных объектов
         public void ClearObjectsList()
         {
             objectsList.Clear();
         }
 
 
+        // получение типа по его имени
         public Type GetTypeByName(string name)
         {
             return lib.GetType(name);
         }
 
 
+        // получение всех дочерних классов
         public void AddChildrenClasses(ComboBox box, Type classType)
         {
             foreach (Type child in classes)
@@ -60,6 +65,7 @@ namespace CRUD
         }
 
 
+        // получение нужного поля/свойства
         public MemberInfo GetCurrentMember(Type type, string name)
         {
             MemberInfo[] members = type.GetMember(name);
@@ -76,7 +82,7 @@ namespace CRUD
         }
 
 
-
+        // базовые обычные типы
         List<Type> BasicTypes = new List<Type>
         {
             typeof(Boolean),
@@ -95,6 +101,7 @@ namespace CRUD
         };
 
 
+        // конвертирование значения поля объекта в нужный базовый тип
         private object BasicTypeConvertion(object from, Type basicType)
         {
             switch (basicType.Name)
@@ -124,6 +131,7 @@ namespace CRUD
         }
 
 
+        // конвертирование значения поля объекта в нужный тип-перечисление
         private object EnumTypeConvertion(object from, Type basicType)
         {
             foreach (string t in basicType.GetEnumNames())
@@ -135,6 +143,7 @@ namespace CRUD
         }
 
 
+        // конвертирование значения СВОЙСТВА
         public PropertyInfo ConvertArgumentAsProperty(MemberInfo member, ref object argument)
         {
             PropertyInfo currentProperty = member as PropertyInfo;
@@ -151,6 +160,7 @@ namespace CRUD
         }
 
 
+        // конвертирование значения ПОЛЯ
         public FieldInfo ConvertArgumentAsField(MemberInfo member,ref object argument)
         {
             FieldInfo currentField = member as FieldInfo;

@@ -20,6 +20,7 @@ namespace CRUD
         private int DefaultPanelWidth = 574; 
         private byte[] DefaultPanelColor = { 0xCE, 0xE1, 0xE6};
 
+
         public MainWindow()
         {
             InitializeComponent();
@@ -31,6 +32,8 @@ namespace CRUD
             reflector.LoadClasses(ClassesComboBox);
         }
 
+
+        // очистка списка созданных объектов
         private void MainWindow_Closed(object sender, System.EventArgs e)
         {
             reflector.ClearObjectsList();
@@ -55,6 +58,7 @@ namespace CRUD
         }
 
 
+        // отрисовка конкретно ПОЛЕЙ
         private void DrawAllFields(Type currentClass, ListBox propertiesListBox)
         {
             FieldInfo[] fields = currentClass.GetFields();
@@ -82,6 +86,7 @@ namespace CRUD
         }
 
 
+        // отрисовка конкретно СВОЙСТВ
         private void DrawAllProperties(Type currentClass, ListBox propertiesListBox)
         {
             PropertyInfo[] properties = currentClass.GetProperties();
@@ -109,6 +114,7 @@ namespace CRUD
         }
 
 
+        // достаём имя для поля из атрибута
         private object CreateTextBlockForProperties(MemberInfo member)
         {
             TextBlock fieldName = new TextBlock();
@@ -128,6 +134,7 @@ namespace CRUD
         }
 
 
+        // если поле обычного типа (текстовое поле)
         private object CreateTextBoxForProperties(MemberInfo member)
         {
             TextBox fieldContent = new TextBox();
@@ -139,6 +146,7 @@ namespace CRUD
         }
 
 
+        // если поле типа enum
         private object CreateComboBoxForProperties(MemberInfo member)
         {
             ComboBox fieldList = new ComboBox();
@@ -164,6 +172,7 @@ namespace CRUD
         }
 
 
+        // если поле типа класс
         private object CreateClassComboBoxForProperties(MemberInfo member)
         {
             ComboBox classList = new ComboBox();
@@ -189,6 +198,7 @@ namespace CRUD
         }
 
 
+        // выбор класса для поля-объекта
         private void SubClassComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             StackPanel parent = (StackPanel)(((ComboBox)sender).Parent);
@@ -227,8 +237,6 @@ namespace CRUD
             Type currentClass = reflector.GetTypeByName(selectedClass);
             DrawAllProperties(currentClass, subList);
             DrawAllFields(currentClass, subList);
-
-
         }
 
 
@@ -258,9 +266,11 @@ namespace CRUD
             {
                 MessageBox.Show(ex.Message);
             }
+            PropertiesListBox.Items.Clear();
         }
 
-
+        
+        // непосредственно создание объекта
         private object CreateSubObject(Type currentClass, object list)
         {
             object currentObject = Activator.CreateInstance(currentClass);
@@ -283,7 +293,6 @@ namespace CRUD
                     }
                     else
                     {
-
                         if (currentPanel.Children[1].GetType() == typeof(ComboBox))
                         {
                             ComboBox propertyBox = currentPanel.Children[1] as ComboBox;
@@ -311,23 +320,16 @@ namespace CRUD
                         currentField.SetValue(currentObject, argument);
                     }
                 }
-
                 return currentObject;
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
             }
-
             return null;
         }
 
-
-
         
-
-
-
         // изменение атрибутов выбранного в ObjectsListBox объекта
         private void EditObjectButton_Click(object sender, RoutedEventArgs e)
         {
@@ -352,6 +354,7 @@ namespace CRUD
                     MessageBox.Show(ex.Message);
                 }
             }
+            PropertiesListBox.Items.Clear();
         }
 
 
@@ -372,8 +375,11 @@ namespace CRUD
                     MessageBox.Show(ex.Message);
                 }
             }
+            PropertiesListBox.Items.Clear();
         }
 
+
+        // отрисовка полей уже созданного объекта при выборе его из списка
         private void ObjectsListBox_Selected(object sender, RoutedEventArgs e)
         {
             CreateObjectButton.IsEnabled = false;
@@ -397,6 +403,8 @@ namespace CRUD
                 (e.Source as ListBoxItem).IsSelected = false;
         }
 
+
+        // заполнение всех полей
         private void FillAllProperties(Type currentClass, object currentObject, ref ListBox propertiesList)
         {
             try
@@ -424,6 +432,7 @@ namespace CRUD
         }
 
 
+        // заполнение поля-класса
         private void FillClassProperty(ComboBox classBox, StackPanel panel, PropertyInfo property, object obj)
         {
             ListBox listBox = new ListBox();
@@ -436,6 +445,7 @@ namespace CRUD
         }
 
 
+        // заполнение поля-enum
         private void FillEnumProperty(ref ComboBox enumBox, PropertyInfo property, object obj)
         {
             string value = property.GetValue(obj).ToString();
@@ -447,6 +457,7 @@ namespace CRUD
         }
 
 
+        // заполнение СВОЙСТВА
         private void FillProperty(ref StackPanel panel, Type type, object obj)
         {
             PropertyInfo[] properties = type.GetProperties();
@@ -475,6 +486,7 @@ namespace CRUD
         }
 
 
+        // заполнение ПОЛЯ
         private void FillField(ref StackPanel panel, Type type, object obj)
         {
             FieldInfo[] fields = type.GetFields();
