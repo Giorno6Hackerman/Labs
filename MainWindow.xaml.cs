@@ -263,17 +263,24 @@ namespace CRUD
             }
 
             string selectedClass = current.SelectedItem.ToString();
-            if (selectedClass.IndexOf(" ") < 0)
+            if (selectedClass.IndexOf(" ") >= 0)
             {
+                int index = Int32.Parse(selectedClass.Substring(0, selectedClass.IndexOf(" ")));
                 selectedClass = selectedClass.Remove(0, selectedClass.IndexOf(" ") + 1);
+                Type currentClass = reflector.GetTypeByName(selectedClass);
+                DrawAllProperties(currentClass, subList);
+                DrawAllFields(currentClass, subList);
+                
+                FillAllProperties(currentClass, reflector.objectsList[index], ref subList);
             }
             else
             {
                 selectedClass = "StoneOcean." + selectedClass; ////////////
+                Type currentClass = reflector.GetTypeByName(selectedClass);
+                DrawAllProperties(currentClass, subList);
+                DrawAllFields(currentClass, subList);
             }
-            Type currentClass = reflector.GetTypeByName(selectedClass);
-            DrawAllProperties(currentClass, subList);
-            DrawAllFields(currentClass, subList);
+            
         }
 
 
@@ -324,8 +331,18 @@ namespace CRUD
                     {
                         ListBox listBox = currentPanel.Children[currentPanel.Children.Count - 1] as ListBox;
                         ComboBox objClassBox = currentPanel.Children[1] as ComboBox;
-                        Type objectClass = reflector.GetTypeByName("StoneOcean." + (string)objClassBox.SelectedItem);
-                        argument = CreateSubObject(objectClass, listBox);
+                        string variantName = objClassBox.SelectedItem.ToString();
+                        if (variantName.IndexOf(" ") >= 0)
+                        {
+                            int num = Int32.Parse(variantName.Substring(0, variantName.IndexOf(" ")));
+                            argument = Activator.CreateInstance(reflector.objectsList[num].GetType());
+                            argument = reflector.objectsList[num];
+                        }
+                        else
+                        {
+                            Type objectClass = reflector.GetTypeByName("StoneOcean." + variantName);
+                            argument = CreateSubObject(objectClass, listBox);
+                        }
                         name = objClassBox.Name.Substring(0, objClassBox.Name.IndexOf("SubClassComboBox"));
                     }
                     else
