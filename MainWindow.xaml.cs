@@ -6,6 +6,9 @@ using System.Windows.Media;
 using System.Reflection;
 using System.ComponentModel.DataAnnotations;
 
+// ДОБАВИТЬ ВОЗМОЖНОСТЬ ВЫБОРА УЖЕ СОЗДАННОГО ОБЪЕКТА ДЛЯ ПОЛЯ-ОБЪЕКТА
+// НУ И ВОЗМОЖНОСТЬ ЕГО ИЗМЕНЕНИЯ ПОДКАТИТЬ
+
 
 namespace CRUD
 {
@@ -193,10 +196,36 @@ namespace CRUD
 
             reflector.AddChildrenClasses(classList, classType);
 
+            AddExistingObjects(classList, classType);
+            // добавить уже созданные объекты подходящих классов
+            //
+            //
+
+
             classList.SelectionChanged += SubClassComboBox_SelectionChanged;
             return classList;
         }
 
+
+        // добавить уже созданные объекты подходящих классов
+        private void AddExistingObjects(ComboBox box, Type parentType)
+        {
+            foreach (object obj in reflector.objectsList)
+            {
+                //if (obj.Equals((ObjectsListBox.SelectedItem as ListBoxItem).Content))
+                  //  return;
+                Type objType = reflector.GetTypeByName(obj.ToString());
+                if (reflector.CheckCompatibleTypes(parentType, objType))
+                {
+                    box.Items.Add(reflector.objectsList.IndexOf(obj).ToString() + " " + obj.ToString());
+                }
+
+            }
+        }
+
+        // /////////////////////////////////////////////////////////////////////////
+        // сделать норм реакцию на выбор объекта
+        // ////////////////////////////////////////////////////////////////////////
 
         // выбор класса для поля-объекта
         private void SubClassComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -233,7 +262,15 @@ namespace CRUD
                 subList.Items.Clear();
             }
 
-            string selectedClass = "StoneOcean." + (string)current.SelectedItem;
+            string selectedClass = current.SelectedItem.ToString();
+            if (selectedClass.IndexOf(" ") < 0)
+            {
+                selectedClass = selectedClass.Remove(0, selectedClass.IndexOf(" ") + 1);
+            }
+            else
+            {
+                selectedClass = "StoneOcean." + selectedClass; ////////////
+            }
             Type currentClass = reflector.GetTypeByName(selectedClass);
             DrawAllProperties(currentClass, subList);
             DrawAllFields(currentClass, subList);

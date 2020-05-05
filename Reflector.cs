@@ -65,6 +65,27 @@ namespace CRUD
         }
 
 
+        // проверка типов на совместимость
+        public bool CheckCompatibleTypes(Type parent, Type child)
+        {
+            if (child == parent)
+                return true;
+            while (child != typeof(object))
+            {
+                if (child.BaseType == parent)
+                {
+                    return true;
+                }
+                else
+                {
+                    child = child.BaseType;
+                }
+            }
+
+            return false;
+        }
+
+
         // получение нужного поля/свойства
         public MemberInfo GetCurrentMember(Type type, string name)
         {
