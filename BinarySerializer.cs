@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Runtime.Serialization;
@@ -18,18 +19,19 @@ namespace CRUD
             
         }
 
-        public void Serialize(Stream serializationStream, object graph) 
+        public void Serialize(Stream serializationStream, object[] graph) 
         {
             
             formatter.Serialize(serializationStream, graph);
         }
 
 
-        public object Deserialize(Stream serializationStream)
+        public object[] Deserialize(Stream serializationStream)
         {
             try
             {
-                object obj = formatter.Deserialize(serializationStream);
+                object[] obj = (object[])formatter.Deserialize(serializationStream);
+                //List<object> l = obj.
                 return obj;
             }
             catch (Exception ex)

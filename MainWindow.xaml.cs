@@ -34,23 +34,25 @@ namespace CRUD
 
             reflector = new Reflector();
             reflector.LoadClasses(ClassesComboBox);
-            
+            /*
             BinarySerializer ser = new BinarySerializer();
             FileStream stream = new FileStream("objects.dat", FileMode.OpenOrCreate);
-            object list;
             try
             {
-               
-                    list = ser.Deserialize(stream);
-                    reflector.objectsList.Add(list);
+
+                object[] objects = ser.Deserialize(stream);
+                foreach (object obj in objects)
+                {
+                    reflector.objectsList.Add(obj);
                     ListBoxItem item = new ListBoxItem();
                     item.Height = DefaultTextBoxHeight;
                     item.FontSize = DefaultFontSize - 2;
                     item.Selected += ObjectsListBox_Selected;
-                    item.Content = list;
+                    item.Content = obj;
                     ObjectsListBox.Items.Add(item);
-                    ObjectsListBox.Visibility = Visibility.Visible;
-                    
+                }
+                
+                ObjectsListBox.Visibility = Visibility.Visible;
             }
             catch (Exception ex)
             {
@@ -60,6 +62,7 @@ namespace CRUD
             {
                 stream.Close();
             }
+            */
         }
 
 
@@ -69,11 +72,11 @@ namespace CRUD
             /*
             BinarySerializer ser = new BinarySerializer();
             FileStream stream = new FileStream("objects.dat", FileMode.Create);
-            foreach (object obj in reflector.objectsList)
-            {
-                ser.Serialize(stream, obj);
-            }
-
+            //foreach (object obj in reflector.objectsList)
+            //{
+            object[] cur = reflector.objectsList.ToArray();
+                ser.Serialize(stream, cur);
+            //}
             stream.Close();
             */
             reflector.ClearObjectsList();

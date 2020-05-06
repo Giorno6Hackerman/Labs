@@ -38,14 +38,24 @@ namespace StoneOcean
 
 
         public ColoredStone(SerializationInfo info, StreamingContext context)
-            : base(info, context)
+         //   : base(info, context)
         {
+            Name = (string)info.GetValue("Name", typeof(string));
+            Color = (string)info.GetValue("Color", typeof(string));
+            Weight = (double)info.GetValue("Weight", typeof(double));
+            Price = (decimal)info.GetValue("Price", typeof(decimal));
+            Hardness = (int)info.GetValue("Hardness", typeof(int));
             Order = (int)info.GetValue("Order", typeof(int));
         }
 
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
+            info.AddValue("Name", Name);
+            info.AddValue("Color", Color);
+            info.AddValue("Weight", Weight);
+            info.AddValue("Price", Price);
+            info.AddValue("Hardness", Hardness);
             info.AddValue("Order", Order);
         }
     }

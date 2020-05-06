@@ -1,10 +1,11 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 
 namespace CRUD
 {
     public interface ISatanSerializer
     {
-        void Serialize(Stream serializationStream, object graph);
-        object Deserialize(Stream serializationStream);
+        void Serialize(Stream serializationStream, object[] graph);
+        object[] Deserialize(Stream serializationStream);
     }
 }

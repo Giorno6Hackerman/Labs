@@ -37,8 +37,12 @@ namespace StoneOcean
         }
 
         public SemipreciousStone(SerializationInfo info, StreamingContext context)
-            :base(info, context)
+        //    :base(info, context)
         {
+            Name = (string)info.GetValue("Name", typeof(string));
+            Color = (string)info.GetValue("Color", typeof(string));
+            Weight = (double)info.GetValue("Weight", typeof(double));
+            Price = (decimal)info.GetValue("Price", typeof(decimal));
             Hardness = (int)info.GetValue("Hardness", typeof(int));
         }
 

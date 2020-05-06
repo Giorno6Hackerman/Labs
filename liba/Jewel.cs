@@ -46,8 +46,12 @@ namespace StoneOcean
 
 
         public Jewel(SerializationInfo info, StreamingContext context)
-            : base(info, context)
+        //    : base(info, context)
         {
+            Name = (string)info.GetValue("Name", typeof(string));
+            Color = (string)info.GetValue("Color", typeof(string));
+            Weight = (double)info.GetValue("Weight", typeof(double));
+            Price = (decimal)info.GetValue("Price", typeof(decimal));
             JType = (Origin)info.GetValue("JType", typeof(Origin));
             JClass = (int)info.GetValue("JClass", typeof(int));
         }
@@ -55,6 +59,10 @@ namespace StoneOcean
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
+            info.AddValue("Name", Name);
+            info.AddValue("Color", Color);
+            info.AddValue("Weight", Weight);
+            info.AddValue("Price", Price);
             info.AddValue("JType", JType);
             info.AddValue("JClass", JClass);
         }
