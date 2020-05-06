@@ -5,6 +5,7 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Reflection;
 using System.ComponentModel.DataAnnotations;
+using System.IO;
 
 // ДОБАВИТЬ ВОЗМОЖНОСТЬ ВЫБОРА УЖЕ СОЗДАННОГО ОБЪЕКТА ДЛЯ ПОЛЯ-ОБЪЕКТА
 // НУ И ВОЗМОЖНОСТЬ ЕГО ИЗМЕНЕНИЯ ПОДКАТИТЬ
@@ -17,7 +18,7 @@ namespace CRUD
     /// </summary>
     public partial class MainWindow : Window
     {
-        private Reflector reflector;
+        public Reflector reflector;
         private int DefaultTextBoxHeight = 30;
         private int DefaultFontSize = 18;
         private int DefaultPanelWidth = 574; 
@@ -33,12 +34,47 @@ namespace CRUD
 
             reflector = new Reflector();
             reflector.LoadClasses(ClassesComboBox);
+            /*
+            BinarySerializer ser = new BinarySerializer();
+            ser.libName = reflector.lib.FullName;
+            FileStream stream = new FileStream("objects.dat", FileMode.OpenOrCreate);
+            object list;
+            try
+            {
+                do
+                {
+                    list = ser.Deserialize(stream);
+                    reflector.objectsList.Add(list);
+                    ListBoxItem item = new ListBoxItem();
+                    item.Height = DefaultTextBoxHeight;
+                    item.FontSize = DefaultFontSize - 2;
+                    item.Selected += ObjectsListBox_Selected;
+                    item.Content = list;
+                    ObjectsListBox.Items.Add(item);
+                }
+                while (list != null);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+            */
         }
 
 
         // очистка списка созданных объектов
         private void MainWindow_Closed(object sender, System.EventArgs e)
         {
+            /*
+            BinarySerializer ser = new BinarySerializer();
+            FileStream stream = new FileStream("objects.dat", FileMode.OpenOrCreate);
+            foreach (object obj in reflector.objectsList)
+            {
+                ser.Serialize(stream, obj);
+            }
+
+            stream.Close();
+            */
             reflector.ClearObjectsList();
         }
 

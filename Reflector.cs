@@ -5,9 +5,9 @@ using System.Collections.Generic;
 
 namespace CRUD
 {
-    class Reflector
+    public class Reflector
     {
-        private Assembly lib;
+        public Assembly lib;
         private string libPath = "D:/prog/4 sem/OOTPISP/Labs/StoneLibrary/bin/Debug/StoneLibrary.dll";
         private Type[] classes;
         public List<object> objectsList;
