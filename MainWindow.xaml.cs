@@ -34,15 +34,13 @@ namespace CRUD
 
             reflector = new Reflector();
             reflector.LoadClasses(ClassesComboBox);
-            /*
+            
             BinarySerializer ser = new BinarySerializer();
-            ser.libName = reflector.lib.FullName;
             FileStream stream = new FileStream("objects.dat", FileMode.OpenOrCreate);
             object list;
             try
             {
-                do
-                {
+               
                     list = ser.Deserialize(stream);
                     reflector.objectsList.Add(list);
                     ListBoxItem item = new ListBoxItem();
@@ -51,14 +49,17 @@ namespace CRUD
                     item.Selected += ObjectsListBox_Selected;
                     item.Content = list;
                     ObjectsListBox.Items.Add(item);
-                }
-                while (list != null);
+                    ObjectsListBox.Visibility = Visibility.Visible;
+                    
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
             }
-            */
+            finally
+            {
+                stream.Close();
+            }
         }
 
 
@@ -67,7 +68,7 @@ namespace CRUD
         {
             /*
             BinarySerializer ser = new BinarySerializer();
-            FileStream stream = new FileStream("objects.dat", FileMode.OpenOrCreate);
+            FileStream stream = new FileStream("objects.dat", FileMode.Create);
             foreach (object obj in reflector.objectsList)
             {
                 ser.Serialize(stream, obj);
@@ -491,6 +492,7 @@ namespace CRUD
             }
             if(ObjectsListBox.Items.Count == 1)
                 (e.Source as ListBoxItem).IsSelected = false;
+            PropertiesListBox.Visibility = Visibility.Visible;
         }
 
 
