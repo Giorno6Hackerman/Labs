@@ -5,6 +5,7 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Reflection;
 using System.ComponentModel.DataAnnotations;
+using System.IO;
 
 // ДОБАВИТЬ ВОЗМОЖНОСТЬ ВЫБОРА УЖЕ СОЗДАННОГО ОБЪЕКТА ДЛЯ ПОЛЯ-ОБЪЕКТА
 // НУ И ВОЗМОЖНОСТЬ ЕГО ИЗМЕНЕНИЯ ПОДКАТИТЬ
@@ -17,7 +18,7 @@ namespace CRUD
     /// </summary>
     public partial class MainWindow : Window
     {
-        private Reflector reflector;
+        public Reflector reflector;
         private int DefaultTextBoxHeight = 30;
         private int DefaultFontSize = 18;
         private int DefaultPanelWidth = 574; 
@@ -33,12 +34,62 @@ namespace CRUD
 
             reflector = new Reflector();
             reflector.LoadClasses(ClassesComboBox);
+            /*
+            //XMLSerializer ser = new XMLSerializer();
+            CustomTextSerializer ser = new CustomTextSerializer();
+            try
+            {
+
+                object[] objects = ser.Deserialize("object.txt");
+                foreach (object obj in objects)
+                {
+                    reflector.objectsList.Add(obj);
+                    ListBoxItem item = new ListBoxItem();
+                    item.Height = DefaultTextBoxHeight;
+                    item.FontSize = DefaultFontSize - 2;
+                    item.Selected += ObjectsListBox_Selected;
+                    item.Content = obj;
+                    ObjectsListBox.Items.Add(item);
+                }
+                
+                ObjectsListBox.Visibility = Visibility.Visible;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+            */
+            
         }
 
 
         // очистка списка созданных объектов
         private void MainWindow_Closed(object sender, System.EventArgs e)
         {
+            
+            try
+            {
+                
+                //FileStream stream = new FileStream("object.txt", FileMode.Create);
+                //object[] cur = reflector.objectsList.ToArray();
+                //foreach (object obj in reflector.objectsList)
+                //{
+                CustomTextSerializer ser = new CustomTextSerializer();
+                    //XMLSerializer ser = new XMLSerializer();
+                    //ser.Serialize(stream, cur);
+                    object[] ob = reflector.objectsList.ToArray();
+
+                    //Array arr = Array.CreateInstance(obj.GetType(), 1);
+                    //ser.Serialize(stream, (object[])arr);
+                    ser.Serialize("object.txt", ob);
+                //}
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+            
+            
             reflector.ClearObjectsList();
         }
 
@@ -455,6 +506,7 @@ namespace CRUD
             }
             if(ObjectsListBox.Items.Count == 1)
                 (e.Source as ListBoxItem).IsSelected = false;
+            PropertiesListBox.Visibility = Visibility.Visible;
         }
 
 
@@ -570,7 +622,64 @@ namespace CRUD
                 currentText.Text = currentField.GetValue(obj).ToString();
             }
         }
-        
+
+        private void SerializeMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            SerializationWindow serWindow = new SerializationWindow(true, ref reflector.objectsList);
+            try
+            {
+                if (serWindow.ShowDialog() == true)
+                {
+
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+            finally
+            {
+                if ((serWindow != null) && (serWindow.IsActive))
+                {
+                    serWindow.Close();
+                }
+            }
+        }
+
+        private void DeserializeMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            SerializationWindow serWindow = new SerializationWindow(false, ref reflector.objectsList);
+            try
+            {
+                if (serWindow.ShowDialog() == true)
+                {
+                    reflector.objectsList.Clear();
+                    reflector.objectsList.AddRange(serWindow.rer);
+                    ObjectsListBox.Items.Clear();
+                    foreach (object obj in reflector.objectsList)
+                    {
+                        ListBoxItem item = new ListBoxItem();
+                        item.Height = DefaultTextBoxHeight;
+                        item.FontSize = DefaultFontSize - 2;
+                        item.Selected += ObjectsListBox_Selected;
+                        item.Content = obj;
+                        ObjectsListBox.Items.Add(item);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+            finally
+            {
+                if ((serWindow != null) && (serWindow.IsActive))
+                {
+                    serWindow.Close();
+                }
+            }
+            ObjectsListBox.Visibility = Visibility.Visible;
+        }
     }
 
     
