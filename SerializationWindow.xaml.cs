@@ -87,5 +87,62 @@ namespace CRUD
                 MessageBox.Show(ex.Message);
             }
             */
+
+
+        //soap
+        /*
+            XMLSerializer ser = new XMLSerializer();
+            FileStream stream = new FileStream("object.xml", FileMode.OpenOrCreate);
+            try
+            {
+
+                object[] objects = ser.Deserialize(stream);
+                foreach (object obj in objects)
+                {
+                    reflector.objectsList.Add(obj);
+                    ListBoxItem item = new ListBoxItem();
+                    item.Height = DefaultTextBoxHeight;
+                    item.FontSize = DefaultFontSize - 2;
+                    item.Selected += ObjectsListBox_Selected;
+                    item.Content = obj;
+                    ObjectsListBox.Items.Add(item);
+                }
+                
+                ObjectsListBox.Visibility = Visibility.Visible;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+            finally
+            {
+                stream.Close();
+            }
+            */
+
+        /*
+            try
+            {
+                
+                FileStream stream = new FileStream("object.xml", FileMode.Create);
+                //object[] cur = reflector.objectsList.ToArray();
+                //foreach (object obj in reflector.objectsList)
+                //{
+                    
+                    XMLSerializer ser = new XMLSerializer();
+                    //ser.Serialize(stream, cur);
+                    object[] ob = reflector.objectsList.ToArray();
+
+                    //Array arr = Array.CreateInstance(obj.GetType(), 1);
+                    //ser.Serialize(stream, (object[])arr);
+                    ser.Serialize(stream, ob);
+                //}
+                stream.Close();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+            */
     }
 }

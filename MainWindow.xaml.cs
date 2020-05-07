@@ -6,7 +6,6 @@ using System.Windows.Media;
 using System.Reflection;
 using System.ComponentModel.DataAnnotations;
 using System.IO;
-using System.Xml;
 
 // ДОБАВИТЬ ВОЗМОЖНОСТЬ ВЫБОРА УЖЕ СОЗДАННОГО ОБЪЕКТА ДЛЯ ПОЛЯ-ОБЪЕКТА
 // НУ И ВОЗМОЖНОСТЬ ЕГО ИЗМЕНЕНИЯ ПОДКАТИТЬ
@@ -35,15 +34,9 @@ namespace CRUD
 
             reflector = new Reflector();
             reflector.LoadClasses(ClassesComboBox);
-
+            /*
+            XMLSerializer ser = new XMLSerializer();
             FileStream stream = new FileStream("object.xml", FileMode.OpenOrCreate);
-            XmlReader reader = XmlReader.Create(stream);
-            reader.MoveToContent(); // get the root-element
-            Type type = reader.ValueType;
-            stream.Close();
-            
-            XMLSerializer ser = new XMLSerializer(type);
-            stream = new FileStream("object.xml", FileMode.OpenOrCreate);
             try
             {
 
@@ -69,7 +62,7 @@ namespace CRUD
             {
                 stream.Close();
             }
-            
+            */
         }
 
 
@@ -82,17 +75,17 @@ namespace CRUD
                 
                 FileStream stream = new FileStream("object.xml", FileMode.Create);
                 //object[] cur = reflector.objectsList.ToArray();
-                foreach (object obj in reflector.objectsList)
-                {
+                //foreach (object obj in reflector.objectsList)
+                //{
                     
-                    XMLSerializer ser = new XMLSerializer(typeof(object));
+                    XMLSerializer ser = new XMLSerializer();
                     //ser.Serialize(stream, cur);
-                    //object[] ob = list.ToArray();
+                    object[] ob = reflector.objectsList.ToArray();
 
                     //Array arr = Array.CreateInstance(obj.GetType(), 1);
                     //ser.Serialize(stream, (object[])arr);
-                    ser.Serialize(stream, new object[1] { obj });
-                }
+                    ser.Serialize(stream, ob);
+                //}
                 stream.Close();
             }
             catch (Exception ex)
