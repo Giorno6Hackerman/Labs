@@ -15,17 +15,15 @@ namespace CRUD
 
         public void Serialize(Stream serializationStream, object[] graph)
         {
-            StreamWriter writer = new StreamWriter(serializationStream);
+            StreamWriter writer = new StreamWriter(serializationStream, Encoding.ASCII);
             foreach (object obj in graph)
             {
                 object ob = obj;
-                Type type = ob.GetType();
-                byte[] str = Encoding.ASCII.GetBytes(type.ToString() + "\r\n");
-                serializationStream.Write(str, 0, str.Length);
+                Type type = obj.GetType();
+                writer.WriteLine(type.ToString());
                 SaveProperties(writer, type, ref ob);
-                SaveFields(writer, type, obj);
-                byte[] end = Encoding.ASCII.GetBytes("\r\n.\r\n");
-                serializationStream.Write(end, 0, end.Length);
+                SaveFields(writer, type, ref ob);
+                writer.WriteLine();
             }
         }
 
@@ -201,19 +199,26 @@ namespace CRUD
                 {
                     object subObj = Activator.CreateInstance(property.PropertyType);
                     SaveProperties(writer, property.PropertyType, ref subObj);
+                    SaveFields(writer, property.PropertyType, ref subObj);
                 }
             }
             writer.WriteLine();
         }
 
 
-        private void SaveFields(StreamWriter writer, Type type, object obj)
+        private void SaveFields(StreamWriter writer, Type type, ref object obj)
         {
             FieldInfo[] fields = type.GetFields();
             foreach (FieldInfo field in fields)
             {
                 string str = field.Name + " " + field.GetValue(obj).ToString();
                 writer.WriteLine(str);
+                if (field.FieldType.IsClass && !field.FieldType.IsPrimitive && (field.FieldType != typeof(string)))
+                {
+                    object subObj = Activator.CreateInstance(field.FieldType);
+                    SaveProperties(writer, field.FieldType, ref subObj);
+                    SaveFields(writer, field.FieldType, ref subObj);
+                }
             }
             writer.WriteLine();
         }
