@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Runtime.Serialization;
+using System.Xml;
+using System.Xml.Schema;
 using System.Xml.Serialization;
 
 namespace StoneOcean
 {
     [Serializable]
-    public class Class1 : ISerializable
+    public class Class1 : ISerializable//, IXmlSerializable
     {
         public Class1()
         {
@@ -25,5 +27,25 @@ namespace StoneOcean
         {
             info.AddValue("number", number);
         }
+
+        /*
+        public void WriteXml(XmlWriter writer)
+        {
+            writer.WriteValue(number);    
+        }
+
+
+        public void ReadXml(XmlReader reader)
+        {
+            number = reader.ReadContentAsInt();
+        }
+
+
+        public XmlSchema GetSchema()
+        {
+            return null;
+        }
+        */
+
     }
 }

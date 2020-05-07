@@ -20,12 +20,19 @@ namespace CRUD
         Assembly serLib;
         private Type[] classes;
         Type inter;
+        public List<object> objects = new List<object>();
+        public object[] rer;
 
-        public SerializationWindow(bool ser)
+        public SerializationWindow(bool ser, ref List<object> obj)
         {
             InitializeComponent();
             IsSerialize = ser;
             LoadSerializationTypes();
+            objects = obj;
+            if(!IsSerialize)
+                obj = objects;
+            else
+                objects = obj;
         }
 
         private void LoadSerializationTypes()
@@ -42,25 +49,7 @@ namespace CRUD
         }
 
 
-        // проверка типов на совместимость
-        public bool CheckCompatibleTypes(Type parent, Type child)
-        {
-            if (child == parent)
-                return true;
-            while (child != typeof(object))
-            {
-                if (child.BaseType == parent)
-                {
-                    return true;
-                }
-                else
-                {
-                    child = child.BaseType;
-                }
-            }
-
-            return false;
-        }
+        
 
         private void chooseFileButton_Click(object sender, RoutedEventArgs e)
         {
@@ -69,16 +58,51 @@ namespace CRUD
             {
                 fileName = fileDialog.FileName;
             }
+            fileNameTextBox.Text = fileName;
+            if (serializationTypeComboBox.SelectedItem != null)
+                if (IsSerialize)
+                {
+                    serializeButton.IsEnabled = true;
+                }
+                else
+                {
+                    deserializeButton.IsEnabled = true;
+                }
         }
 
         private void serializeButton_Click(object sender, RoutedEventArgs e)
         {
-
+            Type serialization = serLib.GetType("CRUD." + serializationTypeComboBox.SelectedItem.ToString());
+            object serializer = Activator.CreateInstance(serialization);
+            MethodInfo method = serialization.GetMethod("Serialize");
+            object[] param = new object[2] { fileName, objects.ToArray() };
+            method.Invoke(serializer, param);////////
+            this.DialogResult = true;
         }
 
         private void deserializeButton_Click(object sender, RoutedEventArgs e)
         {
+            //objects.Clear();
+            Type serialization = serLib.GetType("CRUD." + serializationTypeComboBox.SelectedItem.ToString());
+            object serializer = Activator.CreateInstance(serialization);
+            MethodInfo method = serialization.GetMethod("Deserialize");
+            object[] param = new object[1] { fileName };
+            objects.AddRange((object[])method.Invoke(serializer, param));////////
+            rer = objects.ToArray();
+            this.DialogResult = true;
+        }
 
+        private void serializationTypeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (fileNameTextBox.Text != "")
+                if (IsSerialize)
+                {
+                    serializeButton.IsEnabled = true;
+                }
+                else
+                {
+                    deserializeButton.IsEnabled = true;
+                }
         }
 
         /*

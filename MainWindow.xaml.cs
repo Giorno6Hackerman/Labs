@@ -625,7 +625,7 @@ namespace CRUD
 
         private void SerializeMenuItem_Click(object sender, RoutedEventArgs e)
         {
-            SerializationWindow serWindow = new SerializationWindow(true);
+            SerializationWindow serWindow = new SerializationWindow(true, ref reflector.objectsList);
             if (serWindow.ShowDialog() == true)
             { 
                 
@@ -635,7 +635,24 @@ namespace CRUD
 
         private void DeserializeMenuItem_Click(object sender, RoutedEventArgs e)
         {
-
+            //List<object> list = new List<object>();
+            //list = reflector.objectsList;
+            SerializationWindow serWindow = new SerializationWindow(false, ref reflector.objectsList);
+            if (serWindow.ShowDialog() == true)
+            {
+                reflector.objectsList.Clear();
+                reflector.objectsList.AddRange(serWindow.rer);
+                ObjectsListBox.Items.Clear();
+                foreach (object obj in reflector.objectsList)
+                {
+                    ListBoxItem item = new ListBoxItem();
+                    item.Height = DefaultTextBoxHeight;
+                    item.FontSize = DefaultFontSize - 2;
+                    item.Selected += ObjectsListBox_Selected;
+                    item.Content = obj;
+                    ObjectsListBox.Items.Add(item);
+                }
+            }
         }
     }
 

@@ -21,7 +21,7 @@ namespace CRUD
 
         public void Serialize(string fileName, object[] graph) 
         {
-            FileStream serializationStream = new FileStream(fileName, FileMode.OpenOrCreate);
+            FileStream serializationStream = new FileStream(fileName, FileMode.Create);
             formatter.Serialize(serializationStream, graph);
             serializationStream.Close();
         }
@@ -31,7 +31,7 @@ namespace CRUD
         {
             try
             {
-                FileStream serializationStream = new FileStream(fileName, FileMode.OpenOrCreate);
+                FileStream serializationStream = new FileStream(fileName, FileMode.Open);
                 object[] obj = (object[])formatter.Deserialize(serializationStream);
                 serializationStream.Close();
                 return obj;

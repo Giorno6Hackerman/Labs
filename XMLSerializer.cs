@@ -31,7 +31,7 @@ namespace CRUD
         {
             try
             {
-                FileStream serializationStream = new FileStream(fileName, FileMode.OpenOrCreate);
+                FileStream serializationStream = new FileStream(fileName, FileMode.Create);
                 //xmlFormatter = new XmlSerializer(graph[0].GetType());
                 xmlFormatter.Serialize(serializationStream, graph);
                 serializationStream.Close();
@@ -47,7 +47,7 @@ namespace CRUD
         {
             try
             {
-                FileStream serializationStream = new FileStream(fileName, FileMode.OpenOrCreate);
+                FileStream serializationStream = new FileStream(fileName, FileMode.Open);
                 //xmlFormatter = new XmlSerializer(graph[0].GetType());
                 object[] obj = (object[])xmlFormatter.Deserialize(serializationStream);
                 //object[] obj = new object[1] { ob };
