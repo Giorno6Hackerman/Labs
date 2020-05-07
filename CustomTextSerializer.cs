@@ -10,8 +10,8 @@ namespace CRUD
     public class CustomTextSerializer : ISatanSerializer
     {
         public CustomTextSerializer()
-        { 
-            
+        {
+
         }
 
         public void Serialize(string fileName, object[] graph)
@@ -55,7 +55,15 @@ namespace CRUD
                 {
                     string propName = line.Substring(0, line.IndexOf(" "));
                     MemberInfo curMember = GetCurrentMember(type, propName);
-                    object value = line.Substring(line.IndexOf(" ") + 1);
+                    object value;
+                    if ((curMember as PropertyInfo).PropertyType.IsClass && !(curMember as PropertyInfo).PropertyType.IsPrimitive && ((curMember as PropertyInfo).PropertyType != typeof(string)))
+                    {
+                        value = CreateSubObject(reader, (curMember as PropertyInfo).PropertyType);
+                    }
+                    else
+                    {
+                        value = line.Substring(line.IndexOf(" ") + 1);
+                    }
                     PropertyInfo curProp = ConvertArgumentAsProperty(curMember, ref value);
                     curProp.SetValue(obj, value);
                     line = reader.ReadLine();
@@ -77,6 +85,41 @@ namespace CRUD
 
             reader.Close();
             return list.ToArray();
+        }
+
+
+        private object CreateSubObject(StreamReader reader, Type type)
+        {
+            object subObj = Activator.CreateInstance(type);
+            string line = reader.ReadLine();
+            while (line != "")
+            {
+                string propName = line.Substring(0, line.IndexOf(" "));
+                MemberInfo curMember = GetCurrentMember(type, propName);
+                object value;
+                if ((curMember as PropertyInfo).PropertyType.IsClass && !(curMember as PropertyInfo).PropertyType.IsPrimitive && ((curMember as PropertyInfo).PropertyType != typeof(string)))
+                {
+                    value = CreateSubObject(reader, (curMember as PropertyInfo).PropertyType);
+                }
+                else
+                {
+                    value = line.Substring(line.IndexOf(" ") + 1);
+                }
+                PropertyInfo curProp = ConvertArgumentAsProperty(curMember, ref value);
+                curProp.SetValue(subObj, value);
+                line = reader.ReadLine();
+            }
+            line = reader.ReadLine();
+            while (line != "")
+            {
+                string fieldName = line.Substring(0, line.IndexOf(" "));
+                MemberInfo curMember = GetCurrentMember(type, fieldName);
+                object value = line.Substring(line.IndexOf(" ") + 1);
+                FieldInfo curField = ConvertArgumentAsField(curMember, ref value);
+                curField.SetValue(subObj, value);
+                line = reader.ReadLine();
+            }
+            return subObj;
         }
 
 
@@ -200,7 +243,7 @@ namespace CRUD
                 writer.WriteLine(str);
                 if (property.PropertyType.IsClass && !property.PropertyType.IsPrimitive && (property.PropertyType != typeof(string)))
                 {
-                    object subObj = Activator.CreateInstance(property.PropertyType);
+                    object subObj = property.GetValue(obj);
                     SaveProperties(writer, property.PropertyType, ref subObj);
                     SaveFields(writer, property.PropertyType, ref subObj);
                 }
@@ -218,12 +261,91 @@ namespace CRUD
                 writer.WriteLine(str);
                 if (field.FieldType.IsClass && !field.FieldType.IsPrimitive && (field.FieldType != typeof(string)))
                 {
-                    object subObj = Activator.CreateInstance(field.FieldType);
+                    object subObj = field.GetValue(obj);
                     SaveProperties(writer, field.FieldType, ref subObj);
                     SaveFields(writer, field.FieldType, ref subObj);
                 }
             }
             writer.WriteLine();
         }
+
+        /*
+        private void SaveSubProperties(StreamWriter writer, PropertyInfo info, ref object obj)
+        {
+            Type type = info.PropertyType;
+            PropertyInfo[] properties = type.GetProperties();
+            foreach (PropertyInfo property in properties)
+            {
+                string str = property.Name + " " + property.GetValue(obj).ToString();
+                writer.WriteLine(str);
+                if (property.PropertyType.IsClass && !property.PropertyType.IsPrimitive && (property.PropertyType != typeof(string)))
+                {
+                    object subObj = Activator.CreateInstance(property.PropertyType);
+                    SaveSubProperties(writer, property, ref subObj);
+                    SaveSubFields(writer, property, ref subObj);
+                }
+            }
+            writer.WriteLine();
+        }
+
+
+        private void SaveSubProperties(StreamWriter writer, FieldInfo info, ref object obj)
+        {
+            Type type = info.FieldType;
+            FieldInfo[] fields = type.GetFields();
+            foreach (FieldInfo field in fields)
+            {
+                string str = field.Name + " " + field.GetValue(obj).ToString();
+                writer.WriteLine(str);
+                if (field.FieldType.IsClass && !field.FieldType.IsPrimitive && (field.FieldType != typeof(string)))
+                {
+                    object subObj = Activator.CreateInstance(field.FieldType);
+                    SaveSubProperties(writer, field, ref subObj);
+                    SaveSubFields(writer, field, ref subObj);
+                }
+            }
+            writer.WriteLine();
+        }
+
+
+        private void SaveSubFields(StreamWriter writer, PropertyInfo info, ref object obj)
+        {
+            Type type = info.PropertyType;
+            PropertyInfo[] properties = type.GetProperties();
+            foreach (PropertyInfo property in properties)
+            {
+                string str = property.Name + " " + property.GetValue(obj).ToString();
+                writer.WriteLine(str);
+                if (property.PropertyType.IsClass && !property.PropertyType.IsPrimitive && (property.PropertyType != typeof(string)))
+                {
+                    object subObj = Activator.CreateInstance(property.PropertyType);
+                    SaveSubProperties(writer, property, ref subObj);
+                    SaveSubFields(writer, property, ref subObj);
+                }
+            }
+            writer.WriteLine();
+        }
+
+
+        private void SaveSubFields(StreamWriter writer, FieldInfo info, ref object obj)
+        {
+            Type type = info.FieldType;
+            FieldInfo[] fields = type.GetFields();
+            foreach (FieldInfo field in fields)
+            {
+                string str = field.Name + " " + field.GetValue(obj).ToString();
+                writer.WriteLine(str);
+                if (field.FieldType.IsClass && !field.FieldType.IsPrimitive && (field.FieldType != typeof(string)))
+                {
+                    object subObj = Activator.CreateInstance(field.FieldType);
+                    SaveSubProperties(writer, field, ref subObj);
+                    SaveSubFields(writer, field, ref subObj);
+                }
+            }
+            writer.WriteLine();
+        }
+        */
+
+       
     }
 }
