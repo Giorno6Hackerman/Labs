@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using System.Runtime.Serialization;
+using Microsoft.Win32;
+using System.Reflection;
+using System.Runtime.InteropServices;
 
 namespace CRUD
 {
@@ -11,16 +14,61 @@ namespace CRUD
     /// </summary>
     public partial class SerializationWindow : Window
     {
-        
+        bool IsSerialize;
+        string fileName;
+        string libPath = "D:/prog/4 sem/OOTPISP/Labs/Lab_3/SerializationLibrary/SerializationLibrary/bin/Debug/SerializationLibrary.dll";
+        Assembly serLib;
+        private Type[] classes;
+        Type inter;
 
-        public SerializationWindow()
+        public SerializationWindow(bool ser)
         {
             InitializeComponent();
+            IsSerialize = ser;
+            LoadSerializationTypes();
+        }
+
+        private void LoadSerializationTypes()
+        {
+            serLib = Assembly.LoadFrom(libPath);
+            classes = serLib.GetTypes();
+
+            inter = serLib.GetType("CRUD.ISatanSerializer");
+            foreach(Type type in classes)
+            {
+                if ((type != inter) && (type.GetInterface(inter.Name) != null))
+                    serializationTypeComboBox.Items.Add(type.Name);
+            }
+        }
+
+
+        // проверка типов на совместимость
+        public bool CheckCompatibleTypes(Type parent, Type child)
+        {
+            if (child == parent)
+                return true;
+            while (child != typeof(object))
+            {
+                if (child.BaseType == parent)
+                {
+                    return true;
+                }
+                else
+                {
+                    child = child.BaseType;
+                }
+            }
+
+            return false;
         }
 
         private void chooseFileButton_Click(object sender, RoutedEventArgs e)
         {
-
+            OpenFileDialog fileDialog = new OpenFileDialog();
+            if (fileDialog.ShowDialog() == true)
+            {
+                fileName = fileDialog.FileName;
+            }
         }
 
         private void serializeButton_Click(object sender, RoutedEventArgs e)

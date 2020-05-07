@@ -34,7 +34,7 @@ namespace CRUD
 
             reflector = new Reflector();
             reflector.LoadClasses(ClassesComboBox);
-            
+            /*
             //XMLSerializer ser = new XMLSerializer();
             CustomTextSerializer ser = new CustomTextSerializer();
             try
@@ -58,7 +58,7 @@ namespace CRUD
             {
                 MessageBox.Show(ex.Message);
             }
-            
+            */
             
         }
 
@@ -66,7 +66,7 @@ namespace CRUD
         // очистка списка созданных объектов
         private void MainWindow_Closed(object sender, System.EventArgs e)
         {
-            /*
+            
             try
             {
                 
@@ -88,7 +88,7 @@ namespace CRUD
             {
                 MessageBox.Show(ex.Message);
             }
-            */
+            
             
             reflector.ClearObjectsList();
         }
@@ -622,7 +622,21 @@ namespace CRUD
                 currentText.Text = currentField.GetValue(obj).ToString();
             }
         }
-        
+
+        private void SerializeMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            SerializationWindow serWindow = new SerializationWindow(true);
+            if (serWindow.ShowDialog() == true)
+            { 
+                
+            }
+
+        }
+
+        private void DeserializeMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 
     

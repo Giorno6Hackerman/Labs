@@ -32,12 +32,14 @@
             </Button>
         </StackPanel>
         <StackPanel x:Name="submitSerializationStackPanel" Grid.Row="2" Orientation="Horizontal">
-            <Button x:Name="serializeButton" Margin="15 20 15 20" Width="165" Click="serializeButton_Click">
+            <Button x:Name="serializeButton" Margin="15 20 15 20" Width="165" IsEnabled="False" 
+                Click="serializeButton_Click">
                 <Button.Content>
                     Serialize    
                 </Button.Content>
             </Button>
-            <Button x:Name="deserializeButton" Margin="15 20 15 20" Width="165" Click="deserializeButton_Click">
+            <Button x:Name="deserializeButton" Margin="15 20 15 20" Width="165" IsEnabled="False" 
+                Click="deserializeButton_Click">
                 <Button.Content>
                     Deserialize
                 </Button.Content>
