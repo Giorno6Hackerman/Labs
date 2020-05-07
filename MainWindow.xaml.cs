@@ -34,14 +34,13 @@ namespace CRUD
 
             reflector = new Reflector();
             reflector.LoadClasses(ClassesComboBox);
-            /*
+            
             //XMLSerializer ser = new XMLSerializer();
             CustomTextSerializer ser = new CustomTextSerializer();
-            FileStream stream = new FileStream("object.txt", FileMode.OpenOrCreate);
             try
             {
 
-                object[] objects = ser.Deserialize(stream);
+                object[] objects = ser.Deserialize("object.txt");
                 foreach (object obj in objects)
                 {
                     reflector.objectsList.Add(obj);
@@ -59,22 +58,19 @@ namespace CRUD
             {
                 MessageBox.Show(ex.Message);
             }
-            finally
-            {
-                stream.Close();
-            }
-            */
+            
+            
         }
 
 
         // очистка списка созданных объектов
         private void MainWindow_Closed(object sender, System.EventArgs e)
         {
-            
+            /*
             try
             {
                 
-                FileStream stream = new FileStream("object.txt", FileMode.Create);
+                //FileStream stream = new FileStream("object.txt", FileMode.Create);
                 //object[] cur = reflector.objectsList.ToArray();
                 //foreach (object obj in reflector.objectsList)
                 //{
@@ -85,15 +81,14 @@ namespace CRUD
 
                     //Array arr = Array.CreateInstance(obj.GetType(), 1);
                     //ser.Serialize(stream, (object[])arr);
-                    ser.Serialize(stream, ob);
+                    ser.Serialize("object.txt", ob);
                 //}
-                stream.Close();
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
             }
-            
+            */
             
             reflector.ClearObjectsList();
         }

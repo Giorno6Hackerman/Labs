@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Reflection;
+using System.Resources;
 
 namespace CRUD
 {
@@ -13,9 +14,9 @@ namespace CRUD
             
         }
 
-        public void Serialize(Stream serializationStream, object[] graph)
+        public void Serialize(string fileName, object[] graph)
         {
-            StreamWriter writer = new StreamWriter(serializationStream, Encoding.ASCII);
+            StreamWriter writer = new StreamWriter(fileName);
             foreach (object obj in graph)
             {
                 object ob = obj;
@@ -25,14 +26,15 @@ namespace CRUD
                 SaveFields(writer, type, ref ob);
                 writer.WriteLine();
             }
+            writer.Close();
         }
 
 
-        public object[] Deserialize(Stream serializationStream)
+        public object[] Deserialize(string fileName)
         {
             Assembly currentasm = Assembly.LoadFrom("D:/prog/4 sem/OOTPISP/Labs/StoneLibrary/bin/Debug/StoneLibrary.dll");
             Type type;
-            StreamReader reader = new StreamReader(serializationStream);
+            StreamReader reader = new StreamReader(fileName);
             List<object> list = new List<object>();
 
             while (!reader.EndOfStream)
@@ -70,9 +72,10 @@ namespace CRUD
                 }
                 list.Add(obj);
                 reader.ReadLine();
-                reader.ReadLine();
+                //reader.ReadLine();
             }
-            
+
+            reader.Close();
             return list.ToArray();
         }
 

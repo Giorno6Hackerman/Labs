@@ -27,12 +27,14 @@ namespace CRUD
         }
 
 
-        public void Serialize(Stream serializationStream, object[] graph)
+        public void Serialize(string fileName, object[] graph)
         {
             try
             {
+                FileStream serializationStream = new FileStream(fileName, FileMode.OpenOrCreate);
                 //xmlFormatter = new XmlSerializer(graph[0].GetType());
                 xmlFormatter.Serialize(serializationStream, graph);
+                serializationStream.Close();
             }
             catch (Exception ex)
             {
@@ -41,14 +43,16 @@ namespace CRUD
         }
 
 
-        public object[] Deserialize(Stream serializationStream)
+        public object[] Deserialize(string fileName)
         {
             try
             {
+                FileStream serializationStream = new FileStream(fileName, FileMode.OpenOrCreate);
                 //xmlFormatter = new XmlSerializer(graph[0].GetType());
                 object[] obj = (object[])xmlFormatter.Deserialize(serializationStream);
                 //object[] obj = new object[1] { ob };
                 //object[] obj = (object[])xmlFormatter.Deserialize(serializationStream);
+                serializationStream.Close();
                 return obj;
             }
             catch (Exception ex)
