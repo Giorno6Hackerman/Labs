@@ -35,8 +35,9 @@ namespace CRUD
             reflector = new Reflector();
             reflector.LoadClasses(ClassesComboBox);
             /*
-            XMLSerializer ser = new XMLSerializer();
-            FileStream stream = new FileStream("object.xml", FileMode.OpenOrCreate);
+            //XMLSerializer ser = new XMLSerializer();
+            CustomTextSerializer ser = new CustomTextSerializer();
+            FileStream stream = new FileStream("object.txt", FileMode.OpenOrCreate);
             try
             {
 
@@ -69,16 +70,16 @@ namespace CRUD
         // очистка списка созданных объектов
         private void MainWindow_Closed(object sender, System.EventArgs e)
         {
-            /*
+            
             try
             {
                 
-                FileStream stream = new FileStream("object.xml", FileMode.Create);
+                FileStream stream = new FileStream("object.txt", FileMode.Create);
                 //object[] cur = reflector.objectsList.ToArray();
                 //foreach (object obj in reflector.objectsList)
                 //{
-                    
-                    XMLSerializer ser = new XMLSerializer();
+                CustomTextSerializer ser = new CustomTextSerializer();
+                    //XMLSerializer ser = new XMLSerializer();
                     //ser.Serialize(stream, cur);
                     object[] ob = reflector.objectsList.ToArray();
 
@@ -92,7 +93,7 @@ namespace CRUD
             {
                 MessageBox.Show(ex.Message);
             }
-            */
+            
             
             reflector.ClearObjectsList();
         }
