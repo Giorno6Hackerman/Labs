@@ -53,10 +53,21 @@ namespace CRUD
 
         private void chooseFileButton_Click(object sender, RoutedEventArgs e)
         {
-            OpenFileDialog fileDialog = new OpenFileDialog();
-            if (fileDialog.ShowDialog() == true)
+            if (IsSerialize)
             {
-                fileName = fileDialog.FileName;
+                SaveFileDialog fileDialog = new SaveFileDialog();
+                if (fileDialog.ShowDialog() == true)
+                {
+                    fileName = fileDialog.FileName;
+                }
+            }
+            else
+            {
+                OpenFileDialog fileDialog = new OpenFileDialog();
+                if (fileDialog.ShowDialog() == true)
+                {
+                    fileName = fileDialog.FileName;
+                }
             }
             fileNameTextBox.Text = fileName;
             if (serializationTypeComboBox.SelectedItem != null)
@@ -72,24 +83,39 @@ namespace CRUD
 
         private void serializeButton_Click(object sender, RoutedEventArgs e)
         {
-            Type serialization = serLib.GetType("CRUD." + serializationTypeComboBox.SelectedItem.ToString());
-            object serializer = Activator.CreateInstance(serialization);
-            MethodInfo method = serialization.GetMethod("Serialize");
-            object[] param = new object[2] { fileName, objects.ToArray() };
-            method.Invoke(serializer, param);////////
-            this.DialogResult = true;
+            try
+            {
+                Type serialization = serLib.GetType("CRUD." + serializationTypeComboBox.SelectedItem.ToString());
+                object serializer = Activator.CreateInstance(serialization);
+                MethodInfo method = serialization.GetMethod("Serialize");
+                object[] param = new object[2] { fileName, objects.ToArray() };
+                method.Invoke(serializer, param);////////
+                this.DialogResult = true;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+                this.DialogResult = false;
+            }
         }
 
         private void deserializeButton_Click(object sender, RoutedEventArgs e)
         {
-            //objects.Clear();
-            Type serialization = serLib.GetType("CRUD." + serializationTypeComboBox.SelectedItem.ToString());
-            object serializer = Activator.CreateInstance(serialization);
-            MethodInfo method = serialization.GetMethod("Deserialize");
-            object[] param = new object[1] { fileName };
-            objects.AddRange((object[])method.Invoke(serializer, param));////////
-            rer = objects.ToArray();
-            this.DialogResult = true;
+            try
+            {
+                Type serialization = serLib.GetType("CRUD." + serializationTypeComboBox.SelectedItem.ToString());
+                object serializer = Activator.CreateInstance(serialization);
+                MethodInfo method = serialization.GetMethod("Deserialize");
+                object[] param = new object[1] { fileName };
+                objects.AddRange((object[])method.Invoke(serializer, param));////////
+                rer = objects.ToArray();
+                this.DialogResult = true;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+                this.DialogResult = false;
+            }
         }
 
         private void serializationTypeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
