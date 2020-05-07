@@ -18,6 +18,7 @@ namespace StoneOcean
             Order = newOrder;
         }
 
+
         private int order;
 
         [Required]

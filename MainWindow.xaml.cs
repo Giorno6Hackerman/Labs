@@ -6,6 +6,7 @@ using System.Windows.Media;
 using System.Reflection;
 using System.ComponentModel.DataAnnotations;
 using System.IO;
+using System.Xml;
 
 // ДОБАВИТЬ ВОЗМОЖНОСТЬ ВЫБОРА УЖЕ СОЗДАННОГО ОБЪЕКТА ДЛЯ ПОЛЯ-ОБЪЕКТА
 // НУ И ВОЗМОЖНОСТЬ ЕГО ИЗМЕНЕНИЯ ПОДКАТИТЬ
@@ -34,9 +35,15 @@ namespace CRUD
 
             reflector = new Reflector();
             reflector.LoadClasses(ClassesComboBox);
-            /*
-            BinarySerializer ser = new BinarySerializer();
-            FileStream stream = new FileStream("objects.dat", FileMode.OpenOrCreate);
+
+            FileStream stream = new FileStream("object.xml", FileMode.OpenOrCreate);
+            XmlReader reader = XmlReader.Create(stream);
+            reader.MoveToContent(); // get the root-element
+            Type type = reader.ValueType;
+            stream.Close();
+            
+            XMLSerializer ser = new XMLSerializer(type);
+            stream = new FileStream("object.xml", FileMode.OpenOrCreate);
             try
             {
 
@@ -62,7 +69,7 @@ namespace CRUD
             {
                 stream.Close();
             }
-            */
+            
         }
 
 
@@ -70,15 +77,30 @@ namespace CRUD
         private void MainWindow_Closed(object sender, System.EventArgs e)
         {
             /*
-            BinarySerializer ser = new BinarySerializer();
-            FileStream stream = new FileStream("objects.dat", FileMode.Create);
-            //foreach (object obj in reflector.objectsList)
-            //{
-            object[] cur = reflector.objectsList.ToArray();
-                ser.Serialize(stream, cur);
-            //}
-            stream.Close();
+            try
+            {
+                
+                FileStream stream = new FileStream("object.xml", FileMode.Create);
+                //object[] cur = reflector.objectsList.ToArray();
+                foreach (object obj in reflector.objectsList)
+                {
+                    
+                    XMLSerializer ser = new XMLSerializer(typeof(object));
+                    //ser.Serialize(stream, cur);
+                    //object[] ob = list.ToArray();
+
+                    //Array arr = Array.CreateInstance(obj.GetType(), 1);
+                    //ser.Serialize(stream, (object[])arr);
+                    ser.Serialize(stream, new object[1] { obj });
+                }
+                stream.Close();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
             */
+            
             reflector.ClearObjectsList();
         }
 

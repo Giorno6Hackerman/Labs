@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.Serialization;
+using System.Xml.Serialization;
 
 namespace StoneOcean
 {
@@ -7,10 +8,10 @@ namespace StoneOcean
     public class Class1 : ISerializable
     {
         public Class1()
-        { 
-        
-        }
+        {
 
+        }
+        
         public int number;
 
 
