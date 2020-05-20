@@ -106,6 +106,7 @@ namespace CRUD
                 object[] param = new object[2] { file, objects.ToArray() };
                 method.Invoke(serializer, param);////////
 
+                file.Position = 0;
                 Type encryption = Assembly.LoadFrom(plaginPath).GetType("SymEncryption." + encryptionTypeComboBox.SelectedItem.ToString());
                 object encryptor = Activator.CreateInstance(encryption);
                 MethodInfo enMethod = encryption.GetMethod("Encrypt");
@@ -133,8 +134,9 @@ namespace CRUD
                 Type decryption = Assembly.LoadFrom(plaginPath).GetType("SymEncryption." + encryptionTypeComboBox.SelectedItem.ToString());
                 object decryptor = Activator.CreateInstance(decryption);
                 MethodInfo deMethod = decryption.GetMethod("Decrypt");
-                object[] param2 = new object[1] { fileName };
-                MemoryStream file = (MemoryStream)deMethod.Invoke(decryptor, param2);
+                MemoryStream file = new MemoryStream();
+                object[] param2 = new object[2] { file, fileName };
+                deMethod.Invoke(decryptor, param2);
 
                 //FileStream file = File.OpenRead(fileName);
                 object[] param = new object[1] { file };

@@ -6,80 +6,66 @@ namespace SymEncryption
 {
     public class RijndaelEncryptor
     {
-        static private Rijndael crypty = Rijndael.Create();
-        static private ICryptoTransform encryptor;
+        static private RijndaelManaged crypty = new RijndaelManaged();
+        static private ICryptoTransform encryptor = crypty.CreateEncryptor();
+        static private ICryptoTransform decryptor = crypty.CreateDecryptor();
 
         public RijndaelEncryptor()
         {
-            encryptor = crypty.CreateEncryptor(key, iv);
+            crypty.BlockSize = 256;
         }
 
-        private byte[] key = { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16 };
-        private byte[] iv = { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16 };
-
+        
 
         public void Encrypt(Stream data, string fileName)
         {
             //FileStream file = File.Create(fileName);
-            //byte[] encrypted;
+            byte[] encrypted = new byte[256];
 
-            
-
-            using (FileStream msEncrypt = File.Create(fileName))
+            using (FileStream file = File.Create(fileName))
             {
-                using (CryptoStream csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write))
+                using (BinaryReader reader = new BinaryReader(data))
                 {
-                    using (StreamWriter swEncrypt = new StreamWriter(csEncrypt))
+                    int count = reader.Read(encrypted, 0, encrypted.Length);
+                    while (count > 0)
                     {
-
-                        //Write all data to the stream.
-                        swEncrypt.Write(data);
+                        byte[] result = encryptor.TransformFinalBlock(encrypted, 0, count);
+                        file.Write(result, 0, result.Length);
+                        count = reader.Read(encrypted, 0, encrypted.Length);
                     }
                 }
             }
+
+            
 
         }
 
 
-        public Stream Decrypt(string fileName)
+        public void Decrypt(Stream data, string fileName)
         {
             //StreamReader reader = new StreamReader(fileName);
-            byte[] decrypted = new byte[1024];
-
-            MemoryStream data = new MemoryStream();
-
+            byte[] decrypted = new byte[256];
 
             FileStream str = File.Create("a2.dat");
-            using (FileStream msDecrypt = File.OpenRead(fileName))
-            {
-                using (CryptoStream csDecrypt = new CryptoStream(msDecrypt, encryptor, CryptoStreamMode.Read))
-                {
-                    using (BinaryReader srDecrypt = new BinaryReader(csDecrypt))
-                    {
 
-                        // Read the decrypted bytes from the decrypting stream
-                        // and place them in a string.
-                        int count = srDecrypt.Read(decrypted, 0, decrypted.Length);
-                        do
-                        {
-                            data.Write(decrypted, 0, count);
-                            str.Write(decrypted, 0, count);
-                            count = srDecrypt.Read(decrypted, 0, decrypted.Length);
-                        }
-                        while (count > 0);
+
+            using (FileStream file = File.OpenRead(fileName))
+            {
+                using (BinaryWriter writer = new BinaryWriter(data))
+                {
+                    int count = file.Read(decrypted, 0, decrypted.Length);
+                    while (count > 0)
+                    {
+                        byte[] result = decryptor.TransformFinalBlock(decrypted, 0, count);
+                        writer.Write(result, 0, result.Length);
+                        str.Write(result, 0, result.Length);
+                        count = file.Read(decrypted, 0, decrypted.Length);
                     }
+                    writer.Seek(0, SeekOrigin.Begin);
                 }
             }
 
-            
-            data.Position = 0;
-            //reader.Close();
-
-            
-            
             str.Close();
-
-            return data;
         }
     }
 }
