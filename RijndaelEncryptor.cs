@@ -51,18 +51,17 @@ namespace SymEncryption
 
             using (FileStream file = File.OpenRead(fileName))
             {
-                using (BinaryWriter writer = new BinaryWriter(data))
+                BinaryWriter writer = new BinaryWriter(data);
+                int count = file.Read(decrypted, 0, decrypted.Length);
+                while (count > 0)
                 {
-                    int count = file.Read(decrypted, 0, decrypted.Length);
-                    while (count > 0)
-                    {
-                        byte[] result = decryptor.TransformFinalBlock(decrypted, 0, count);
-                        writer.Write(result, 0, result.Length);
-                        str.Write(result, 0, result.Length);
-                        count = file.Read(decrypted, 0, decrypted.Length);
-                    }
-                    writer.Seek(0, SeekOrigin.Begin);
+                    byte[] result = decryptor.TransformFinalBlock(decrypted, 0, count);
+                    writer.Write(result, 0, result.Length);
+                    str.Write(result, 0, result.Length);
+                    count = file.Read(decrypted, 0, decrypted.Length);
                 }
+                writer.Seek(0, SeekOrigin.Begin);
+                
             }
 
             str.Close();
