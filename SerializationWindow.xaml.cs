@@ -29,6 +29,7 @@ namespace CRUD
             InitializeComponent();
             IsSerialize = ser;
             LoadSerializationTypes();
+            LoadPlagins();
             objects = obj;
             if(!IsSerialize)
                 obj = objects;
@@ -49,7 +50,18 @@ namespace CRUD
             }
         }
 
+        string plaginPath = "D:/prog/4 sem/OOTPISP/Labs/Lab_4/SymEncryption/SymEncryption/bin/Debug/SymEncryption.dll";
 
+        private void LoadPlagins()
+        {
+            Assembly plagin = Assembly.LoadFrom(plaginPath);
+            Type[] classes = plagin.GetTypes();
+            foreach (Type type in classes)
+            {
+                if (type.IsClass)
+                    encryptionTypeComboBox.Items.Add(type.Name);
+            }
+        }
         
 
         private void chooseFileButton_Click(object sender, RoutedEventArgs e)
@@ -89,9 +101,16 @@ namespace CRUD
                 Type serialization = serLib.GetType("CRUD." + serializationTypeComboBox.SelectedItem.ToString());
                 object serializer = Activator.CreateInstance(serialization);
                 MethodInfo method = serialization.GetMethod("Serialize");
-                FileStream file = File.Create(fileName);
+                //FileStream file = File.Create(fileName);
+                MemoryStream file = new MemoryStream();
                 object[] param = new object[2] { file, objects.ToArray() };
                 method.Invoke(serializer, param);////////
+
+                Type encryption = Assembly.LoadFrom(plaginPath).GetType("SymEncryption." + encryptionTypeComboBox.SelectedItem.ToString());
+                object encryptor = Activator.CreateInstance(encryption);
+                MethodInfo enMethod = encryption.GetMethod("Encrypt");
+                object[] param2 = new object[2] { file, fileName };
+                enMethod.Invoke(encryptor, param2);
                 file.Close();
                 this.DialogResult = true;
             }
@@ -109,7 +128,15 @@ namespace CRUD
                 Type serialization = serLib.GetType("CRUD." + serializationTypeComboBox.SelectedItem.ToString());
                 object serializer = Activator.CreateInstance(serialization);
                 MethodInfo method = serialization.GetMethod("Deserialize");
-                FileStream file = File.OpenRead(fileName);
+                //MemoryStream file = new MemoryStream();
+
+                Type decryption = Assembly.LoadFrom(plaginPath).GetType("SymEncryption." + encryptionTypeComboBox.SelectedItem.ToString());
+                object decryptor = Activator.CreateInstance(decryption);
+                MethodInfo deMethod = decryption.GetMethod("Decrypt");
+                object[] param2 = new object[1] { fileName };
+                MemoryStream file = (MemoryStream)deMethod.Invoke(decryptor, param2);
+
+                //FileStream file = File.OpenRead(fileName);
                 object[] param = new object[1] { file };
                 objects.AddRange((object[])method.Invoke(serializer, param));////////
                 file.Close();
@@ -134,6 +161,11 @@ namespace CRUD
                 {
                     deserializeButton.IsEnabled = true;
                 }
+        }
+
+        private void encryptionTypeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+
         }
 
         /*
