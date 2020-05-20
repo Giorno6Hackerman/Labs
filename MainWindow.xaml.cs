@@ -66,7 +66,7 @@ namespace CRUD
         // очистка списка созданных объектов
         private void MainWindow_Closed(object sender, System.EventArgs e)
         {
-            
+            /*
             try
             {
                 
@@ -81,14 +81,14 @@ namespace CRUD
 
                     //Array arr = Array.CreateInstance(obj.GetType(), 1);
                     //ser.Serialize(stream, (object[])arr);
-                    ser.Serialize("object.txt", ob);
+                    //ser.Serialize("object.txt", ob);
                 //}
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
             }
-            
+            */
             
             reflector.ClearObjectsList();
         }

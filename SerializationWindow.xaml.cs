@@ -6,6 +6,7 @@ using System.Runtime.Serialization;
 using Microsoft.Win32;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.IO;
 
 namespace CRUD
 {
@@ -88,8 +89,10 @@ namespace CRUD
                 Type serialization = serLib.GetType("CRUD." + serializationTypeComboBox.SelectedItem.ToString());
                 object serializer = Activator.CreateInstance(serialization);
                 MethodInfo method = serialization.GetMethod("Serialize");
-                object[] param = new object[2] { fileName, objects.ToArray() };
+                FileStream file = File.Create(fileName);
+                object[] param = new object[2] { file, objects.ToArray() };
                 method.Invoke(serializer, param);////////
+                file.Close();
                 this.DialogResult = true;
             }
             catch (Exception ex)
@@ -106,8 +109,10 @@ namespace CRUD
                 Type serialization = serLib.GetType("CRUD." + serializationTypeComboBox.SelectedItem.ToString());
                 object serializer = Activator.CreateInstance(serialization);
                 MethodInfo method = serialization.GetMethod("Deserialize");
-                object[] param = new object[1] { fileName };
+                FileStream file = File.OpenRead(fileName);
+                object[] param = new object[1] { file };
                 objects.AddRange((object[])method.Invoke(serializer, param));////////
+                file.Close();
                 rer = objects.ToArray();
                 this.DialogResult = true;
             }
