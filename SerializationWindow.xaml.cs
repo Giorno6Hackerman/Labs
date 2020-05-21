@@ -8,6 +8,7 @@ using System.IO;
 using System.Security.Permissions;
 using System.Security;
 using System.Reflection.Emit;
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace CRUD
 {
@@ -96,11 +97,10 @@ namespace CRUD
             //private ComboBox _box;
             public List<Type> _plagins = new List<Type>();
 
-            public Pass(AppDomain domain, string dllPath, ref List<Type> plagins)
+            public Pass(AppDomain domain, string dllPath)
             {
                 _domain = domain;
                 _dllPath = dllPath;
-                _plagins = plagins;
             }
 
             public void Foo()
@@ -127,10 +127,37 @@ namespace CRUD
                         }
                     }
                 }
+
+                BinaryFormatter format = new BinaryFormatter();
+                FileStream temp = File.Create("temp.dat");
+                format.Serialize(temp, _plagins.ToArray());
+                temp.Close();
             }
         }
         */
 
+            /*
+        class Loader : MarshalByRefObject
+        {
+            private Assembly _assembly;
+
+            public override object InitializeLifetimeService()
+            {
+                return null;
+            }
+
+            public void LoadAssembly(string path)
+            {
+                _assembly = Assembly.Load(AssemblyName.GetAssemblyName(path));
+            }
+
+            public Type[] GetAllTypes()
+            {
+                return _assembly.GetTypes();
+            }
+        }
+
+        */
         private void LoadPlagins()
         {
 
@@ -140,26 +167,30 @@ namespace CRUD
             try
             {
                 
-                AppDomain domain = AppDomain.CreateDomain("Satan");
+                //AppDomain domain = AppDomain.CreateDomain("Satan");
                 //string[] files = Directory.GetFiles(plaginPath, "*.dll");
-                /*var pass = new Pass(domain, plaginPath, ref plagins);
-                domain.DoCallBack(pass.Foo);
-                plagins = pass._plagins;
-                foreach (Type type in plagins)
-                {
-                    encryptionTypeComboBox.Items.Add(type.Name);
-                }
+                //var pass = new Pass(domain, plaginPath);
+                //domain.DoCallBack(pass.Foo);
+                /*
+                FileStream temp = File.OpenRead("temp.dat");
+                BinaryFormatter format = new BinaryFormatter();
+                Type[] plags = (Type[])format.Deserialize(temp);
+                temp.Close();
                 */
+
+                
 
                 foreach (FileInfo file in files)
                 {
                     string name = plaginPath + "/" + file.Name;
+                    /*
+                    Loader loader = (Loader)domain.CreateInstanceAndUnwrap(
+                    typeof(Loader).Assembly.FullName,
+                    typeof(Loader).FullName);
+                    loader.LoadAssembly(name);
+                    */
 
-                    AssemblyName cur = AssemblyName.GetAssemblyName(name);
-                    Assembly plagin = domain.Load(cur);
-
-
-                    //Assembly plagin = Assembly.LoadFrom(file);
+                    Assembly plagin = Assembly.LoadFrom(file.FullName);
                     Type[] classes = plagin.GetTypes();
                     foreach (Type type in classes)
                     {
@@ -171,7 +202,7 @@ namespace CRUD
                     }
                 }
 
-                AppDomain.Unload(domain);
+                //AppDomain.Unload(domain);
             }
             catch (Exception ex)
             {
