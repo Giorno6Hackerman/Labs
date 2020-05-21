@@ -6,6 +6,7 @@ using System.Runtime.Serialization;
 using Microsoft.Win32;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.IO;
 
 namespace CRUD
 {
@@ -23,11 +24,13 @@ namespace CRUD
         public List<object> objects = new List<object>();
         public object[] rer;
 
+
         public SerializationWindow(bool ser, ref List<object> obj)
         {
             InitializeComponent();
             IsSerialize = ser;
             LoadSerializationTypes();
+            LoadPlagins();
             objects = obj;
             if(!IsSerialize)
                 obj = objects;
@@ -48,7 +51,27 @@ namespace CRUD
             }
         }
 
+        string plaginPath = "D:/prog/4 sem/OOTPISP/Labs/Lab_4/plagins";
+        private List<Type> plagins = new List<Type>();
 
+        private void LoadPlagins()
+        {
+            DirectoryInfo dir = new DirectoryInfo(plaginPath);
+            FileInfo[] files = dir.GetFiles("*.dll");
+            foreach (FileInfo file in files)
+            {
+                Assembly plagin = Assembly.LoadFrom(file.FullName);
+                Type[] classes = plagin.GetTypes();
+                foreach (Type type in classes)
+                {
+                    if (type.IsClass)
+                    {
+                        encryptionTypeComboBox.Items.Add(type.Name);
+                        plagins.Add(type);
+                    }
+                }
+            }
+        }
         
 
         private void chooseFileButton_Click(object sender, RoutedEventArgs e)
@@ -56,6 +79,7 @@ namespace CRUD
             if (IsSerialize)
             {
                 SaveFileDialog fileDialog = new SaveFileDialog();
+                fileDialog.Filter = "aes files (*.ae)|*.ae|Rij files (*.rj)|*.rj";
                 if (fileDialog.ShowDialog() == true)
                 {
                     fileName = fileDialog.FileName;
@@ -64,13 +88,24 @@ namespace CRUD
             else
             {
                 OpenFileDialog fileDialog = new OpenFileDialog();
+                fileDialog.Filter = "aes files (*.ae)|*.ae|Rij files (*.rj)|*.rj";
                 if (fileDialog.ShowDialog() == true)
                 {
                     fileName = fileDialog.FileName;
                 }
+                string ext = fileName.Substring(fileName.LastIndexOf(".") + 1);
+                if (ext == "rj")
+                {
+                    encryptionTypeComboBox.SelectedItem = "RijndaelEncryptor";
+                }
+                else if (ext == "ae")
+                {
+                    encryptionTypeComboBox.SelectedItem = "AesEncryptor";
+                }
+                encryptionTypeComboBox.IsEnabled = false;
             }
             fileNameTextBox.Text = fileName;
-            if (serializationTypeComboBox.SelectedItem != null)
+            if ((serializationTypeComboBox.SelectedItem != null) && (encryptionTypeComboBox.SelectedItem != null))
                 if (IsSerialize)
                 {
                     serializeButton.IsEnabled = true;
@@ -88,8 +123,18 @@ namespace CRUD
                 Type serialization = serLib.GetType("CRUD." + serializationTypeComboBox.SelectedItem.ToString());
                 object serializer = Activator.CreateInstance(serialization);
                 MethodInfo method = serialization.GetMethod("Serialize");
-                object[] param = new object[2] { fileName, objects.ToArray() };
+                //FileStream file = File.Create(fileName);
+                MemoryStream file = new MemoryStream();
+                object[] param = new object[2] { file, objects.ToArray() };
                 method.Invoke(serializer, param);////////
+
+                file.Position = 0;
+                Type encryption = plagins[encryptionTypeComboBox.SelectedIndex];
+                object encryptor = Activator.CreateInstance(encryption);
+                MethodInfo enMethod = encryption.GetMethod("Encrypt");
+                object[] param2 = new object[2] { file, fileName };
+                enMethod.Invoke(encryptor, param2);
+                file.Close();
                 this.DialogResult = true;
             }
             catch (Exception ex)
@@ -106,8 +151,19 @@ namespace CRUD
                 Type serialization = serLib.GetType("CRUD." + serializationTypeComboBox.SelectedItem.ToString());
                 object serializer = Activator.CreateInstance(serialization);
                 MethodInfo method = serialization.GetMethod("Deserialize");
-                object[] param = new object[1] { fileName };
+                //MemoryStream file = new MemoryStream();
+
+                Type decryption = plagins[encryptionTypeComboBox.SelectedIndex];
+                object decryptor = Activator.CreateInstance(decryption);
+                MethodInfo deMethod = decryption.GetMethod("Decrypt");
+                MemoryStream file = new MemoryStream();
+                object[] param2 = new object[2] { file, fileName };
+                deMethod.Invoke(decryptor, param2);
+
+                //FileStream file = File.OpenRead(fileName);
+                object[] param = new object[1] { file };
                 objects.AddRange((object[])method.Invoke(serializer, param));////////
+                file.Close();
                 rer = objects.ToArray();
                 this.DialogResult = true;
             }
@@ -120,7 +176,20 @@ namespace CRUD
 
         private void serializationTypeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (fileNameTextBox.Text != "")
+            if ((fileNameTextBox.Text != "") && (encryptionTypeComboBox.SelectedItem != null))
+                if (IsSerialize)
+                {
+                    serializeButton.IsEnabled = true;
+                }
+                else
+                {
+                    deserializeButton.IsEnabled = true;
+                }
+        }
+
+        private void encryptionTypeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if ((fileNameTextBox.Text != "") && (serializationTypeComboBox.SelectedItem != null))
                 if (IsSerialize)
                 {
                     serializeButton.IsEnabled = true;

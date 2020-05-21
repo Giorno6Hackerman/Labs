@@ -5,7 +5,7 @@ namespace CRUD
 {
     public interface ISatanSerializer
     {
-        void Serialize(string fileName, object[] graph);
-        object[] Deserialize(string fileName);
+        void Serialize(Stream data, object[] graph);
+        object[] Deserialize(Stream data);
     }
 }

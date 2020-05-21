@@ -14,9 +14,9 @@ namespace CRUD
 
         }
 
-        public void Serialize(string fileName, object[] graph)
+        public void Serialize(Stream data, object[] graph)
         {
-            StreamWriter writer = new StreamWriter(fileName);
+            StreamWriter writer = new StreamWriter(data);
             foreach (object obj in graph)
             {
                 object ob = obj;
@@ -26,15 +26,16 @@ namespace CRUD
                 SaveFields(writer, type, ref ob);
                 writer.WriteLine();
             }
-            writer.Close();
+            writer.Flush();
+            //writer.Close();
         }
 
 
-        public object[] Deserialize(string fileName)
+        public object[] Deserialize(Stream data)
         {
             Assembly currentasm = Assembly.LoadFrom("D:/prog/4 sem/OOTPISP/Labs/StoneLibrary/bin/Debug/StoneLibrary.dll");
             Type type;
-            StreamReader reader = new StreamReader(fileName);
+            StreamReader reader = new StreamReader(data);
             List<object> list = new List<object>();
 
             while (!reader.EndOfStream)
@@ -83,6 +84,7 @@ namespace CRUD
                 //reader.ReadLine();
             }
 
+            
             reader.Close();
             return list.ToArray();
         }

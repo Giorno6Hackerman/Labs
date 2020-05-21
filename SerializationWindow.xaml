@@ -18,10 +18,16 @@
 
             </RowDefinition>
         </Grid.RowDefinitions>
-        <ComboBox Name="serializationTypeComboBox" Grid.Row="0" Margin="15 20 15 20" 
-            SelectionChanged="serializationTypeComboBox_SelectionChanged">
-            
-        </ComboBox>
+        <StackPanel Grid.Row="0" Orientation="Horizontal">
+            <ComboBox Name="serializationTypeComboBox" Margin="15 20 15 20" Width="165" 
+                SelectionChanged="serializationTypeComboBox_SelectionChanged">
+
+            </ComboBox>
+            <ComboBox Name="encryptionTypeComboBox" Margin="15 20 15 20" Width="165"
+                SelectionChanged="encryptionTypeComboBox_SelectionChanged">
+
+            </ComboBox>
+        </StackPanel>
         <StackPanel x:Name="chooseFileStackPanel" Grid.Row="1" Orientation="Horizontal">
             <TextBox  x:Name="fileNameTextBox" Margin="15 25 15 25" Width="250">
                 

@@ -19,21 +19,21 @@ namespace CRUD
             
         }
 
-        public void Serialize(string fileName, object[] graph) 
+        public void Serialize(Stream data, object[] graph) 
         {
-            FileStream serializationStream = new FileStream(fileName, FileMode.Create);
-            formatter.Serialize(serializationStream, graph);
-            serializationStream.Close();
+            //MemoryStream serializationStream = data as MemoryStream;
+            formatter.Serialize(data, graph);
+            //serializationStream.Close();
         }
 
 
-        public object[] Deserialize(string fileName)
+        public object[] Deserialize(Stream data)
         {
             try
             {
-                FileStream serializationStream = new FileStream(fileName, FileMode.Open);
-                object[] obj = (object[])formatter.Deserialize(serializationStream);
-                serializationStream.Close();
+                //MemoryStream serializationStream = data as MemoryStream;
+                object[] obj = (object[])formatter.Deserialize(data);
+                //serializationStream.Close();
                 return obj;
             }
             catch (Exception ex)
