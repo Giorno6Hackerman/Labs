@@ -87,7 +87,7 @@ namespace CRUD
         public string plaginPath = "D:/prog/4 sem/OOTPISP/Labs/Lab_4/plagins";
         private List<Type> plagins = new List<Type>();
 
-
+        /*
         [Serializable]
         private class Pass
         {
@@ -96,11 +96,11 @@ namespace CRUD
             //private ComboBox _box;
             public List<Type> _plagins = new List<Type>();
 
-            public Pass(AppDomain domain, string dllPath)
+            public Pass(AppDomain domain, string dllPath, ref List<Type> plagins)
             {
                 _domain = domain;
                 _dllPath = dllPath;
-                //_box = box;
+                _plagins = plagins;
             }
 
             public void Foo()
@@ -129,7 +129,7 @@ namespace CRUD
                 }
             }
         }
-
+        */
 
         private void LoadPlagins()
         {
@@ -139,14 +139,36 @@ namespace CRUD
 
             try
             {
+                
                 AppDomain domain = AppDomain.CreateDomain("Satan");
                 //string[] files = Directory.GetFiles(plaginPath, "*.dll");
-                var pass = new Pass(domain, plaginPath);
+                /*var pass = new Pass(domain, plaginPath, ref plagins);
                 domain.DoCallBack(pass.Foo);
                 plagins = pass._plagins;
                 foreach (Type type in plagins)
                 {
                     encryptionTypeComboBox.Items.Add(type.Name);
+                }
+                */
+
+                foreach (FileInfo file in files)
+                {
+                    string name = plaginPath + "/" + file.Name;
+
+                    AssemblyName cur = AssemblyName.GetAssemblyName(name);
+                    Assembly plagin = domain.Load(cur);
+
+
+                    //Assembly plagin = Assembly.LoadFrom(file);
+                    Type[] classes = plagin.GetTypes();
+                    foreach (Type type in classes)
+                    {
+                        if (type.IsClass)
+                        {
+                            encryptionTypeComboBox.Items.Add(type.Name);
+                            plagins.Add(type);
+                        }
+                    }
                 }
 
                 AppDomain.Unload(domain);
