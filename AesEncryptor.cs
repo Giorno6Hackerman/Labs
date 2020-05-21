@@ -7,7 +7,7 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Windows.Forms;
 
-namespace AesEncryption
+namespace SymEncryption
 {
     public class AesEncryptor
     {

@@ -50,16 +50,21 @@ namespace CRUD
             }
         }
 
-        string plaginPath = "D:/prog/4 sem/OOTPISP/Labs/Lab_4/SymEncryption/SymEncryption/bin/Debug/SymEncryption.dll";
+        string plaginPath = "D:/prog/4 sem/OOTPISP/Labs/Lab_4/plagins";
 
         private void LoadPlagins()
         {
-            Assembly plagin = Assembly.LoadFrom(plaginPath);
-            Type[] classes = plagin.GetTypes();
-            foreach (Type type in classes)
+            DirectoryInfo dir = new DirectoryInfo(plaginPath);
+            FileInfo[] files = dir.GetFiles("*.dll");
+            foreach (FileInfo file in files)
             {
-                if (type.IsClass)
-                    encryptionTypeComboBox.Items.Add(type.Name);
+                Assembly plagin = Assembly.LoadFrom(file.FullName);
+                Type[] classes = plagin.GetTypes();
+                foreach (Type type in classes)
+                {
+                    if (type.IsClass)
+                        encryptionTypeComboBox.Items.Add(type.Name);
+                }
             }
         }
         
@@ -69,6 +74,7 @@ namespace CRUD
             if (IsSerialize)
             {
                 SaveFileDialog fileDialog = new SaveFileDialog();
+                fileDialog.Filter = "aes files (*.ae)|*.ae|Rij files (*.rj)|*.rj";
                 if (fileDialog.ShowDialog() == true)
                 {
                     fileName = fileDialog.FileName;
@@ -77,13 +83,24 @@ namespace CRUD
             else
             {
                 OpenFileDialog fileDialog = new OpenFileDialog();
+                fileDialog.Filter = "aes files (*.ae)|*.ae|Rij files (*.rj)|*.rj";
                 if (fileDialog.ShowDialog() == true)
                 {
                     fileName = fileDialog.FileName;
                 }
+                string ext = fileName.Substring(fileName.LastIndexOf(".") + 1);
+                if (ext == "rj")
+                {
+                    encryptionTypeComboBox.SelectedItem = "RijndaelEncryptor";
+                }
+                else if (ext == "ae")
+                {
+                    encryptionTypeComboBox.SelectedItem = "AesEncryptor";
+                }
+                encryptionTypeComboBox.IsEnabled = false;
             }
             fileNameTextBox.Text = fileName;
-            if (serializationTypeComboBox.SelectedItem != null)
+            if ((serializationTypeComboBox.SelectedItem != null) && (encryptionTypeComboBox.SelectedItem != null))
                 if (IsSerialize)
                 {
                     serializeButton.IsEnabled = true;
@@ -154,7 +171,7 @@ namespace CRUD
 
         private void serializationTypeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (fileNameTextBox.Text != "")
+            if ((fileNameTextBox.Text != "") && (encryptionTypeComboBox.SelectedItem != null))
                 if (IsSerialize)
                 {
                     serializeButton.IsEnabled = true;
@@ -167,7 +184,15 @@ namespace CRUD
 
         private void encryptionTypeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-
+            if ((fileNameTextBox.Text != "") && (serializationTypeComboBox.SelectedItem != null))
+                if (IsSerialize)
+                {
+                    serializeButton.IsEnabled = true;
+                }
+                else
+                {
+                    deserializeButton.IsEnabled = true;
+                }
         }
 
         /*
