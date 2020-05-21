@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
-using System.Runtime.Serialization;
 using Microsoft.Win32;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using System.IO;
+using System.Security.Permissions;
+using System.Security;
+using System.Reflection.Emit;
 
 namespace CRUD
 {
@@ -36,10 +37,42 @@ namespace CRUD
                 obj = objects;
             else
                 objects = obj;
+
+            SetWatcher();
         }
 
-        private void LoadSerializationTypes()
+        [PermissionSet(SecurityAction.Demand, Name = "FullTrust")]
+        private void SetWatcher()
         {
+            FileSystemWatcher watcher = new FileSystemWatcher();
+            watcher.Path = plaginPath;
+            watcher.NotifyFilter = NotifyFilters.FileName | NotifyFilters.LastWrite | NotifyFilters.Attributes;
+            watcher.Filter = "*.dll";
+
+            watcher.Changed += OnChanged;
+            watcher.Created += OnChanged;
+            watcher.Deleted += OnChanged;
+            watcher.Renamed += OnRenamed;
+
+            watcher.EnableRaisingEvents = true;
+        }
+
+
+        private void OnRenamed(object sender, RenamedEventArgs e)
+        {
+            encryptionTypeComboBox.Items.Clear();
+            LoadPlagins();
+        }
+
+        private void OnChanged(object sender, FileSystemEventArgs e)
+        {
+            encryptionTypeComboBox.Items.Clear();
+            LoadPlagins();
+        }
+
+
+        private void LoadSerializationTypes()
+        {   
             serLib = Assembly.LoadFrom(libPath);
             classes = serLib.GetTypes();
 
@@ -51,25 +84,76 @@ namespace CRUD
             }
         }
 
-        string plaginPath = "D:/prog/4 sem/OOTPISP/Labs/Lab_4/plagins";
+        public string plaginPath = "D:/prog/4 sem/OOTPISP/Labs/Lab_4/plagins";
         private List<Type> plagins = new List<Type>();
+
+
+        [Serializable]
+        private class Pass
+        {
+            private readonly AppDomain _domain;
+            private readonly string _dllPath;
+            //private ComboBox _box;
+            public List<Type> _plagins = new List<Type>();
+
+            public Pass(AppDomain domain, string dllPath)
+            {
+                _domain = domain;
+                _dllPath = dllPath;
+                //_box = box;
+            }
+
+            public void Foo()
+            {
+                DirectoryInfo dir = new DirectoryInfo(_dllPath);
+                FileInfo[] files = dir.GetFiles("*.dll");
+
+                foreach (FileInfo file in files)
+                {
+                    string name = _dllPath + "/" + file.Name;
+
+                    AssemblyName cur = AssemblyName.GetAssemblyName(name);
+                    Assembly plagin = _domain.Load(cur);
+
+
+                    //Assembly plagin = Assembly.LoadFrom(file);
+                    Type[] classes = plagin.GetTypes();
+                    foreach (Type type in classes)
+                    {
+                        if (type.IsClass)
+                        {
+                            //_box.Items.Add(type.Name);
+                            _plagins.Add(type);
+                        }
+                    }
+                }
+            }
+        }
+
 
         private void LoadPlagins()
         {
+
             DirectoryInfo dir = new DirectoryInfo(plaginPath);
             FileInfo[] files = dir.GetFiles("*.dll");
-            foreach (FileInfo file in files)
+
+            try
             {
-                Assembly plagin = Assembly.LoadFrom(file.FullName);
-                Type[] classes = plagin.GetTypes();
-                foreach (Type type in classes)
+                AppDomain domain = AppDomain.CreateDomain("Satan");
+                //string[] files = Directory.GetFiles(plaginPath, "*.dll");
+                var pass = new Pass(domain, plaginPath);
+                domain.DoCallBack(pass.Foo);
+                plagins = pass._plagins;
+                foreach (Type type in plagins)
                 {
-                    if (type.IsClass)
-                    {
-                        encryptionTypeComboBox.Items.Add(type.Name);
-                        plagins.Add(type);
-                    }
+                    encryptionTypeComboBox.Items.Add(type.Name);
                 }
+
+                AppDomain.Unload(domain);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
             }
         }
         
