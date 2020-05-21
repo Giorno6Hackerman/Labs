@@ -26,7 +26,8 @@ namespace CRUD
                 SaveFields(writer, type, ref ob);
                 writer.WriteLine();
             }
-            writer.Close();
+            writer.Flush();
+            //writer.Close();
         }
 
 
@@ -83,6 +84,7 @@ namespace CRUD
                 //reader.ReadLine();
             }
 
+            
             reader.Close();
             return list.ToArray();
         }

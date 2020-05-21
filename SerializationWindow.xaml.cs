@@ -24,6 +24,7 @@ namespace CRUD
         public List<object> objects = new List<object>();
         public object[] rer;
 
+
         public SerializationWindow(bool ser, ref List<object> obj)
         {
             InitializeComponent();
@@ -51,6 +52,7 @@ namespace CRUD
         }
 
         string plaginPath = "D:/prog/4 sem/OOTPISP/Labs/Lab_4/plagins";
+        private List<Type> plagins = new List<Type>();
 
         private void LoadPlagins()
         {
@@ -63,7 +65,10 @@ namespace CRUD
                 foreach (Type type in classes)
                 {
                     if (type.IsClass)
+                    {
                         encryptionTypeComboBox.Items.Add(type.Name);
+                        plagins.Add(type);
+                    }
                 }
             }
         }
@@ -124,7 +129,7 @@ namespace CRUD
                 method.Invoke(serializer, param);////////
 
                 file.Position = 0;
-                Type encryption = Assembly.LoadFrom(plaginPath).GetType("SymEncryption." + encryptionTypeComboBox.SelectedItem.ToString());
+                Type encryption = plagins[encryptionTypeComboBox.SelectedIndex];
                 object encryptor = Activator.CreateInstance(encryption);
                 MethodInfo enMethod = encryption.GetMethod("Encrypt");
                 object[] param2 = new object[2] { file, fileName };
@@ -148,7 +153,7 @@ namespace CRUD
                 MethodInfo method = serialization.GetMethod("Deserialize");
                 //MemoryStream file = new MemoryStream();
 
-                Type decryption = Assembly.LoadFrom(plaginPath).GetType("SymEncryption." + encryptionTypeComboBox.SelectedItem.ToString());
+                Type decryption = plagins[encryptionTypeComboBox.SelectedIndex];
                 object decryptor = Activator.CreateInstance(decryption);
                 MethodInfo deMethod = decryption.GetMethod("Decrypt");
                 MemoryStream file = new MemoryStream();
